@@ -42,12 +42,14 @@ public class EnemyController : MonoBehaviour
         var playerTransform = levelManager.Player.transform;
         RaycastHit hitInfo;
         var dirVec = playerTransform.position - transform.position;
-        playerDirection = dirVec.normalized;
+        playerDirection = dirVec;
         Ray ray = new Ray(transform.position, dirVec);
         if (Physics.Raycast(ray, out hitInfo, dirVec.magnitude))
         {
+            Debug.Log("Hit a raycast, tag is " + hitInfo.collider.tag);
             return hitInfo.collider.CompareTag("Player");
         }
+        Debug.Log("Didn't hit a raycast");
         return true;
     }
 
