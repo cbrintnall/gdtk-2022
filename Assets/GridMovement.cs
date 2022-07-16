@@ -1,19 +1,45 @@
 using Arc.Lib.Debug;
 using UnityEditor;
 using UnityEngine;
+using DG.Tweening;
 
 public class GridMovement : MonoBehaviour
 {
   public Grid Grid;
   public Vector3Int CurrentTile => Grid.WorldToCell(transform.position);
 
+  [Header("Move Speeds")]
+  public float RotationSpeedSeconds = .2f;
+  public float TileMoveSpeedSeconds = .1f;
+
+  [Header("Audio")]
+  public AudioClip[] MoveSounds;
+
+  private AudioSource audioplayer;
+  public float targetRotation = 90f;
   DebugManager dbg;
+  Tweener rotationTween;
+  Tweener moveTween;
 
   private void Start()
   {
+    audioplayer = GetComponent<AudioSource>();
     dbg = FindObjectOfType<DebugManager>();
 
     Utils.AlignToGrid(Grid, transform);
+
+    rotationTween = transform
+      .DORotateQuaternion(transform.rotation, RotationSpeedSeconds)
+      .SetAutoKill(false)
+      .SetRecyclable(true)
+      .SetEase(Ease.InOutCubic);
+
+    moveTween = transform
+      .DOMove(transform.position, TileMoveSpeedSeconds)
+      .SetAutoKill(false)
+      .SetRecyclable(true)
+      .OnComplete(() => audioplayer?.PlayOneShot(MoveSounds.Random()))
+      .SetEase(Ease.InOutCubic);
   }
 
   public void Move(int tiles = 1)
@@ -30,19 +56,31 @@ public class GridMovement : MonoBehaviour
 
     if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
     {
-      transform.position += new Vector3(dest.x, 0f, dest.z);
+      moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
+
+      if (!moveTween.IsPlaying())
+      {
+        moveTween.Play();
+      }
     }
   }
 
   public void Rotate(bool right)
   {
-    float rotationAmt = right ? 90f : -90f;
+    targetRotation += right ? 90f : -90f;
 
-    transform.rotation = Quaternion.Euler(
+    Quaternion target = Quaternion.Euler(
       transform.rotation.eulerAngles.x,
-      transform.rotation.eulerAngles.y + rotationAmt,
+      targetRotation,
       transform.rotation.eulerAngles.z
     );
+
+    rotationTween.ChangeEndValue(target, true);
+
+    if (!rotationTween.IsPlaying())
+    {
+      rotationTween.Play();
+    }
   }
 
   private void OnDrawGizmosSelected()
