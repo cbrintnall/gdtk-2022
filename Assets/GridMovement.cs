@@ -1,4 +1,5 @@
 using Arc.Lib.Debug;
+using DG.Tweening;
 using UnityEditor;
 using UnityEngine;
 using DG.Tweening;
@@ -44,17 +45,17 @@ public class GridMovement : MonoBehaviour
       .SetEase(Ease.InOutCubic);
   }
 
-  public void Move(int tiles = 1)
-  {
-    Utils.AlignToGrid(Grid, transform);
+    public void Move(int tiles = 1)
+    {
+        Utils.AlignToGrid(Grid, transform);
 
-    Vector3 dir = new Vector3(
-      Grid.cellSize.x * transform.forward.x,
-      Grid.cellSize.y * transform.forward.y,
-      Grid.cellSize.z * transform.forward.z
-    );
+        Vector3 dir = new Vector3(
+          Grid.cellSize.x * transform.forward.x,
+          Grid.cellSize.y * transform.forward.y,
+          Grid.cellSize.z * transform.forward.z
+        );
 
-    Vector3 dest = dir * tiles;
+        Vector3 dest = dir * tiles;
 
     if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
     {
@@ -67,7 +68,22 @@ public class GridMovement : MonoBehaviour
     }
   }
 
-  public void Rotate(bool right)
+    public Vector2Int GetTargetTile(int tiles = 1)
+    {
+        Vector3 dir = new Vector3(
+          Grid.cellSize.x * transform.forward.x,
+          0,
+          Grid.cellSize.z * transform.forward.z
+        );
+
+        Vector3 dest = dir * tiles + transform.position;
+
+        Vector3Int cellPos = Grid.WorldToCell(dest);
+
+        return new Vector2Int(cellPos.x, cellPos.z);
+    }
+
+    public void Rotate(bool right)
   {
     targetRotation += right ? 90f : -90f;
 
