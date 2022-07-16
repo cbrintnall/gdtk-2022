@@ -12,6 +12,8 @@ public class EnemyController : MonoBehaviour
 
     Vector2Int TargetTile;
 
+    private AudioSource audioplayer;
+
     void Start()
     {
         levelManager = FindObjectOfType<LevelManager>();
@@ -20,6 +22,7 @@ public class EnemyController : MonoBehaviour
 
         GridMover = GetComponent<GridMovement>();
         dbg = FindObjectOfType<DebugManager>();
+        audioplayer = GetComponent<AudioSource>();
     }
 
     public void OnPlayerMove(PlayerMoveEvent e)
@@ -47,11 +50,12 @@ public class EnemyController : MonoBehaviour
 
             if (targetTile == Utils.xy(playerTile))
             {
-                // TODO: set up attack state here
-                return;
+                audioplayer.Play();
             }
-
-            GridMover.Move(1);
+            else
+            {
+                GridMover.Move(1);
+            }
         }
     }
 
