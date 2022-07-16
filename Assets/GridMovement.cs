@@ -6,7 +6,7 @@ using UnityEngine.Events;
 public class GridMovement : MonoBehaviour
 {
   public Grid Grid;
-  public Vector3Int CurrentTile => Grid.WorldToCell(transform.position);
+  public Vector2Int CurrentTile => Utils.xy(Grid.WorldToCell(transform.position));
   public UnityEvent OnMovementComplete;
 
   [Header("Move Speeds")]
@@ -17,7 +17,7 @@ public class GridMovement : MonoBehaviour
   public AudioClip[] MoveSounds;
 
   private AudioSource audioplayer;
-  public float targetRotation = 90f;
+  public float targetRotation = 0;
   DebugManager dbg;
   Tweener rotationTween;
   Tweener moveTween;
@@ -81,7 +81,7 @@ public class GridMovement : MonoBehaviour
         return new Vector2Int(cellPos.x, cellPos.z);
     }
 
-    public void Rotate(bool right)
+  public void Rotate(bool right)
   {
     targetRotation += right ? 90f : -90f;
 
@@ -101,7 +101,10 @@ public class GridMovement : MonoBehaviour
 
   void OnMoveTweenComplete()
   {
-    audioplayer?.PlayOneShot(MoveSounds.Random());
+    if (MoveSounds.Length > 0)
+    {
+      audioplayer?.PlayOneShot(MoveSounds.Random());
+    }
     OnMovementComplete?.Invoke();
   }
 
