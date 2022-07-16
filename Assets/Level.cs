@@ -12,6 +12,7 @@ public class Level : MonoBehaviour
   Grid grid;
 
   public void SetAtTile(int x, int y, Transform target) => SetAtTile(new Vector2Int(x, y), target);
+
   public void SetAtTile(Vector2Int tile, Transform target)
   {
     target.position = grid.CellToWorld(
@@ -19,6 +20,29 @@ public class Level : MonoBehaviour
     );
 
     Utils.AlignToGrid(grid, target);
+  }
+
+  public List<GameObject> GetObjectsAtTile(Vector2Int tile) => TestForTile(tile, transform);
+
+  private List<GameObject> TestForTile(Vector2Int tile, Transform transform)
+  {
+    List<GameObject> atTiles = new();
+
+    for (int i = 0; i < transform.childCount; i++)
+    {
+      Transform childTransform = transform.GetChild(i);
+
+      atTiles.AddRange(TestForTile(tile, childTransform));
+
+      Vector2Int childTile = Utils.GetTileForTransform(grid, childTransform);
+
+      if (tile == childTile)
+      {
+        atTiles.Add(childTransform.gameObject);
+      }
+    }
+
+    return atTiles;
   }
 
   private void Awake()
