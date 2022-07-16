@@ -3,16 +3,19 @@ using UnityEngine;
 
 public class PlayerMoveEvent : BaseEvent
 {
+  public Vector2Int OldTile;
   public Vector2Int NewTile;
 }
 
 [RequireComponent(typeof(GridMovement))]
+[RequireComponent(typeof(HpPool))]
 public class PlayerController : MonoBehaviour
 {
   GridMovement GridMover;
   DebugManager dbg;
   EventManager eventManager;
   LevelManager levelManager;
+  public Vector2Int prevTilePos;
 
   private void Start()
   {
@@ -21,9 +24,12 @@ public class PlayerController : MonoBehaviour
     eventManager = FindObjectOfType<EventManager>();
     levelManager = FindObjectOfType<LevelManager>();
     eventManager.Register<StartCombatEvent>(OnStartCombat);
+    prevTilePos = GridMover.CurrentTile;
   }
 
-  public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent { NewTile = Utils.xy(GridMover.CurrentTile) });
+  public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent {
+    OldTile = prevTilePos,
+    NewTile = GridMover.CurrentTile });
 
   private void Update()
   {
@@ -49,7 +55,7 @@ public class PlayerController : MonoBehaviour
       foreach (EnemyController enemy in enemies)
       {
         var enemyMover = enemy.GetComponent<GridMovement>();
-        Vector2Int enemyPos = Utils.xy(enemyMover.CurrentTile);
+        Vector2Int enemyPos = enemyMover.CurrentTile;
         if (enemyPos == targetTile)
         {
           collidedWith = enemy;
@@ -59,13 +65,14 @@ public class PlayerController : MonoBehaviour
 
       if (collidedWith == null)
       {
+        prevTilePos = GridMover.CurrentTile;
         GridMover.Move(1);
       }
       else
       {
         eventManager.Publish(new StartCombatEvent { 
           EnemyName = collidedWith.name,
-          EnemyPosition = Utils.xy(collidedWith.GetComponent<GridMovement>().CurrentTile)});
+          EnemyPosition = collidedWith.GetComponent<GridMovement>().CurrentTile});
       }
     }
 

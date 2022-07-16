@@ -5,6 +5,11 @@ using UnityEngine;
 public static class Utils 
 {
 
+  public static Vector3Int xyz(Vector2Int xz)
+  {
+    return new Vector3Int(xz.x, 0, xz.y);
+  }
+
   public static Vector2Int xy(Vector3Int xyz)
   {
     return new Vector2Int(xyz.x, xyz.z);

@@ -11,12 +11,15 @@ public class StartCombatEvent : BaseEvent
 }
 
 [RequireComponent(typeof(GridMovement))]
+[RequireComponent(typeof(HpPool))]
 public class EnemyController : MonoBehaviour
 {
   GridMovement GridMover;
   DebugManager dbg;
   LevelManager levelManager;
   EventManager eventManager;
+
+  Vector3 targetPos;
 
   private AudioSource audioplayer;
 
@@ -53,12 +56,13 @@ public class EnemyController : MonoBehaviour
       transform.forward = moveDir;
 
       Vector2Int targetTile = GridMover.GetTargetTile();
-      Vector3Int playerTile = levelManager.Player.GetComponent<GridMovement>().CurrentTile;
+      targetPos = GridMover.Grid.CellToWorld(Utils.xyz(targetTile)) - GridMover.Grid.cellSize / 2;
+      Vector2Int playerTile = levelManager.Player.GetComponent<GridMovement>().CurrentTile;
 
-      if (targetTile == Utils.xy(playerTile))
+      if (targetTile == playerTile)
       {
         Debug.Log("Entering combat");
-        eventManager.Publish(new StartCombatEvent { EnemyPosition = Utils.xy(GridMover.CurrentTile), EnemyName = name });
+        eventManager.Publish(new StartCombatEvent { EnemyPosition = GridMover.CurrentTile, EnemyName = name });
         audioplayer.Play();
       }
       else
@@ -71,6 +75,7 @@ public class EnemyController : MonoBehaviour
   bool IsPlayerVisible(out Vector3 playerDirection)
   {
     var playerTransform = levelManager.Player.transform;
+    var playerPrevPos = levelManager.Player.GetComponent<PlayerController>().prevTilePos;
     RaycastHit hitInfo;
     var dirVec = playerTransform.position - transform.position;
     playerDirection = dirVec;
@@ -78,7 +83,18 @@ public class EnemyController : MonoBehaviour
     if (Physics.Raycast(ray, out hitInfo, dirVec.magnitude))
     {
       Debug.Log("Hit a raycast, tag is " + hitInfo.collider.tag);
-      return hitInfo.collider.CompareTag("Player");
+      if (hitInfo.collider.CompareTag("Player")) { return true; }
+      Debug.Log("We didn't return from the first raycast");
+      var target2 = GridMover.Grid.CellToWorld(new Vector3Int(playerPrevPos.x, 0, playerPrevPos.y));
+      var dirVec2 = target2 - transform.position;
+      Ray ray2 = new Ray(transform.position, dirVec2);
+      if (!Physics.Raycast(ray2, out hitInfo, dirVec2.magnitude))
+      {
+        Debug.Log("We didn't hit anything in the second raycast");
+        playerDirection = dirVec2;
+        return true;
+      }
+      return false;
     }
     Debug.Log("Didn't hit a raycast");
     return true;
@@ -95,5 +111,10 @@ public class EnemyController : MonoBehaviour
   void Update()
   {
 
+  }
+
+  private void OnDrawGizmos()
+  {
+    //Gizmos.DrawSphere(targetPos, 4);
   }
 }
