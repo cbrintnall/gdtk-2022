@@ -1,7 +1,4 @@
 using Arc.Lib.Debug;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMoveEvent : BaseEvent
@@ -25,6 +22,8 @@ public class PlayerController : MonoBehaviour
 		levelManager = FindObjectOfType<LevelManager>();
   }
 
+	public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent { NewTile = GridMover.CurrentTile });
+
   private void Update()
   {
 		if (Input.GetKeyDown(KeyCode.Tilde))
@@ -44,7 +43,6 @@ public class PlayerController : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.W))
 		{
 			GridMover.Move(1);
-			eventManager.Publish(new PlayerMoveEvent { NewTile = GridMover.CurrentTile });
 		}
 
 		dbg.Track("Player Tile", GridMover.CurrentTile);

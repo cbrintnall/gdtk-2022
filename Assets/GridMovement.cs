@@ -2,11 +2,13 @@ using Arc.Lib.Debug;
 using UnityEditor;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Events;
 
 public class GridMovement : MonoBehaviour
 {
   public Grid Grid;
   public Vector3Int CurrentTile => Grid.WorldToCell(transform.position);
+  public UnityEvent OnMovementComplete;
 
   [Header("Move Speeds")]
   public float RotationSpeedSeconds = .2f;
@@ -38,7 +40,7 @@ public class GridMovement : MonoBehaviour
       .DOMove(transform.position, TileMoveSpeedSeconds)
       .SetAutoKill(false)
       .SetRecyclable(true)
-      .OnComplete(() => audioplayer?.PlayOneShot(MoveSounds.Random()))
+      .OnComplete(OnMoveTweenComplete)
       .SetEase(Ease.InOutCubic);
   }
 
@@ -81,6 +83,12 @@ public class GridMovement : MonoBehaviour
     {
       rotationTween.Play();
     }
+  }
+
+  void OnMoveTweenComplete()
+  {
+    audioplayer?.PlayOneShot(MoveSounds.Random());
+    OnMovementComplete?.Invoke();
   }
 
   private void OnDrawGizmosSelected()

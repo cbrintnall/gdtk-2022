@@ -12,6 +12,11 @@ public class Level : MonoBehaviour
 
   Grid grid;
 
+  private void Awake()
+  {
+    grid = GetComponent<Grid>();
+  }
+
   public void SetAtTile(int x, int y, Transform target) => SetAtTile(new Vector2Int(x, y), target);
 
   public void SetAtTile(Vector2Int tile, Transform target)
@@ -52,23 +57,5 @@ public class Level : MonoBehaviour
     }
 
     return atTiles;
-  }
-
-  private void Awake()
-  {
-    grid = GetComponent<Grid>();
-  }
-
-  private void Update()
-  {
-    if (Application.isEditor)
-    {
-      for(int i = 0; i < transform.childCount; i++)
-      {
-        Transform childTransform = transform.GetChild(i);
-
-        Utils.AlignToGrid(grid, childTransform);
-      }
-    }
   }
 }
