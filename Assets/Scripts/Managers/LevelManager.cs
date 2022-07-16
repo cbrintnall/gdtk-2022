@@ -12,7 +12,6 @@ public enum GameState
 [Singleton]
 public class LevelManager : MonoBehaviour
 {
-  public Grid Grid;
   public PlayerController Player;
   public Level Level;
   public GameState GameState;
@@ -20,7 +19,6 @@ public class LevelManager : MonoBehaviour
   private void Start()
   {
     // TODO: eventually this singleton will handle switching of levels, spawning of player, etc.
-    Grid = FindObjectOfType<Grid>();
     Player = FindObjectOfType<PlayerController>();
     Level = FindObjectOfType<Level>();
     GameState = GameState.EXPLORING;

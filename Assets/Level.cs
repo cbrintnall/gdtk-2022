@@ -12,6 +12,9 @@ public class Level : MonoBehaviour
 
   Grid grid;
 
+  public Grid GetGrid()
+  { return grid; }
+
   private void Awake()
   {
     grid = GetComponent<Grid>();
