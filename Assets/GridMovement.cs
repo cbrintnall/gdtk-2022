@@ -1,4 +1,5 @@
 using Arc.Lib.Debug;
+using UnityEditor;
 using UnityEngine;
 
 public class GridMovement : MonoBehaviour
@@ -27,16 +28,7 @@ public class GridMovement : MonoBehaviour
 
     Vector3 dest = dir * tiles;
 
-    dbg.DoDebug(() =>
-    {
-      Debug.DrawRay(transform.position, dest, Color.red, 1f);
-    });
-
-    if (Physics.Raycast(transform.position, dest, out RaycastHit hit))
-    {
-      print(hit.collider.name);
-    }
-    else
+    if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
     {
       transform.position += new Vector3(dest.x, 0f, dest.z);
     }

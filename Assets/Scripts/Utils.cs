@@ -19,4 +19,6 @@ public static class Utils
 
     return new Vector2Int(Mathf.FloorToInt(targetPosition.x), Mathf.FloorToInt(targetPosition.z));
   }
+
+  public static float Average(this Vector3 vec) => (vec.x + vec.y + vec.z) / 3f;
 }

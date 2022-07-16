@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [RequireComponent(typeof(Grid))]
 [ExecuteInEditMode]
@@ -20,6 +21,14 @@ public class Level : MonoBehaviour
     );
 
     Utils.AlignToGrid(grid, target);
+  }
+
+  public T GetObjectAtTile<T>(Vector2Int tile) where T : Component
+  {
+    return GetObjectsAtTile(tile)
+      .Where(go => go.GetComponent<T>() != null)
+      .Select(go => go.GetComponent<T>())
+      .FirstOrDefault();
   }
 
   public List<GameObject> GetObjectsAtTile(Vector2Int tile) => TestForTile(tile, transform);
