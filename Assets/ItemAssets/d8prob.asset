@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e947f7d8c4592454585b24d548eb2607, type: 3}
   m_Name: d8prob
   m_EditorClassIdentifier: 
-  priority: 0
-  numSides: 6
+  numSides: 8
