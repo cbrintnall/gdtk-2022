@@ -1,4 +1,0 @@
-repository "gdtk-2022@Christian_Brintnall@cloud"
-  path "/"
-    br "/main"
-    co "/main"

@@ -26,13 +26,15 @@ public class Level : MonoBehaviour
     grid = GetComponent<Grid>();
   }
 
-  private void FixedUpdate()
+  private void Update()
   {
     if (Application.isEditor)
     {
       for(int i = 0; i < transform.childCount; i++)
       {
-        Utils.AlignToGrid(grid, transform.GetChild(i));
+        Transform childTransform = transform.GetChild(i);
+
+        Utils.AlignToGrid(grid, childTransform);
       }
     }
   }
