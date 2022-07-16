@@ -2,48 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public abstract class BaseItem : ScriptableObject
 {
-  public int Priority;
 
-    private protected int count;
-  private protected DiceData dice;
-
-    EventManager eventManager;
-
-    public void OnEnable()
+    public string assignToDice(DiceController dice)
     {
-        eventManager = FindObjectOfType<EventManager>();
-        count = 1;
-    }
+        UnityEngine.Debug.Log($"attempting to assign {getName()} to {dice.diceName}");
 
-    public static void assignToDice(GameObject itemPrefab, DiceData dice)
-    {
         BaseItem item;
-        if (dice.itemDic.TryGetValue(itemPrefab, out item))
-        {
-            item.count++;
-            UnityEngine.Debug.Log($"{item.getName()} already was assigned to {dice.id}, increasing its count to {item.count}");
-        } else
-        {
-            GameObject o = Instantiate(itemPrefab);
-            item = o.GetComponent<BaseItem>();
-            UnityEngine.Debug.Log($"Assigning {item.getName()} to {dice.id}");
+        if (!dice.itemsDic.TryGetValue(getName(), out item)) { item = this; }
 
-            dice.itemDic[itemPrefab] = item;
-            dice.items.Add(item);
-            item.dice = dice;
-
-            item.eventManager.Register<OnRollEvent>(item.onRoll);
+        if (item.handleAssignToDice(dice))
+        {
+            dice.addItem(item);
+            UnityEngine.Debug.Log($"Added {getName()} to {dice.diceName}");
+            return "added";
         }
-    }
-
-    public int getCount()
-    {
-        return count;
+        UnityEngine.Debug.Log($"Rejected {getName()} to {dice.diceName}");
+        return "rejected";
     }
 
     public abstract string getName();
+    public abstract int getPriority();
+    public virtual string getDesc() { return ""; }
 
-    public abstract void onRoll(OnRollEvent e);
+    public virtual bool handleAssignToDice(DiceController dice) { return true; }
+    public virtual void updateTargetState(TargetState state) { }
+    public virtual void updateProbState(ProbState state) { }
+    public virtual void updateAttackState(AttackState state) { }
+
 }

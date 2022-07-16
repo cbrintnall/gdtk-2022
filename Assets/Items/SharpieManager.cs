@@ -2,22 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "new Sharpie", menuName = "Items/Sharpie")]
 public class SharpieManager : BaseItem
 {
-    public int fromNumber;
-    public int toNumber;
+    public int fromNum;
+    public int toNum;
 
-    public override string getName()
+    override public string getName() { return "Sharpie"; }
+    override public string getDesc() { return "Replaces a value"; }
+
+    public override int getPriority() { return 2001; }
+
+    override public bool handleAssignToDice(DiceController dice)
     {
-        return "Sharpie";
+        return !dice.itemsDic.ContainsKey(getName());
     }
 
-    public override void onRoll(OnRollEvent e)
+    public override void updateAttackState(AttackState state)
     {
-        if (e.dice == dice && e.result == fromNumber)
+        if (state.rollResult == fromNum)
         {
-            UnityEngine.Debug.Log($"Replacing the roll {fromNumber}-->{toNumber}");
-            e.result = toNumber;
+            UnityEngine.Debug.Log($"Replacing result from {fromNum}-->{toNum}");
+            state.rollResult = toNum;
         }
     }
 }

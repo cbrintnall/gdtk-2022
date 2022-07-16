@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5314480454176892080
+--- !u!1 &7933099002560616215
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 499625583602330284}
-  - component: {fileID: 8701343457803454345}
+  - component: {fileID: 477550304495537018}
+  - component: {fileID: 681963311016140051}
   m_Layer: 0
-  m_Name: Sharpie
+  m_Name: Dice 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &499625583602330284
+--- !u!4 &477550304495537018
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5314480454176892080}
+  m_GameObject: {fileID: 7933099002560616215}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,17 +32,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8701343457803454345
+--- !u!114 &681963311016140051
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5314480454176892080}
+  m_GameObject: {fileID: 7933099002560616215}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78be935a4af095b41b7496a3c9ce876d, type: 3}
+  m_Script: {fileID: 11500000, guid: 02d50a3eb7fa18641b945488f6cb2779, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fromNumber: 3
-  toNumber: 6
+  diceName: Dice1
+  diceDesc: d6
+  items:
+  - {fileID: 11400000, guid: 143f5d86493dfa44b866399d9f8b36eb, type: 2}
+  - {fileID: 11400000, guid: 42d61cb6569a78a4ba71ed0e245131bc, type: 2}
+  - {fileID: 11400000, guid: 8823fe988c6ec3646b42d9178b777afa, type: 2}
+  - {fileID: 11400000, guid: cdbe51766fa8dd94eba2b05690a38144, type: 2}
+  sortedItems: []
