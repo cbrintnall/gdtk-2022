@@ -8,7 +8,7 @@ public static class Utils
   {
     Vector3 targetPosition = grid.CellToWorld(
       grid.WorldToCell(transform.position)
-    );
+    ) + grid.cellSize/2f;
 
     transform.position = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
   }
