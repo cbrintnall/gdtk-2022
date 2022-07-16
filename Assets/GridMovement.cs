@@ -83,7 +83,7 @@ public class GridMovement : MonoBehaviour
         return new Vector2Int(cellPos.x, cellPos.z);
     }
 
-    public void Rotate(bool right)
+  public void Rotate(bool right)
   {
     targetRotation += right ? 90f : -90f;
 
@@ -103,7 +103,10 @@ public class GridMovement : MonoBehaviour
 
   void OnMoveTweenComplete()
   {
-    audioplayer?.PlayOneShot(MoveSounds.Random());
+    if (MoveSounds.Length > 0)
+    {
+      audioplayer?.PlayOneShot(MoveSounds.Random());
+    }
     OnMovementComplete?.Invoke();
   }
 

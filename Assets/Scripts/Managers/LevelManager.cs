@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Arc.Lib.Utils.SingletonLoader;
 
+public enum GameState
+{
+  EXPLORING,
+  IN_COMBAT
+}
+
 [Singleton]
 public class LevelManager : MonoBehaviour
 {
   public Grid Grid;
   public PlayerController Player;
   public Level Level;
+  public GameState GameState;
 
   private void Start()
   {
@@ -16,5 +23,6 @@ public class LevelManager : MonoBehaviour
     Grid = FindObjectOfType<Grid>();
     Player = FindObjectOfType<PlayerController>();
     Level = FindObjectOfType<Level>();
+    GameState = GameState.EXPLORING;
   }
 }

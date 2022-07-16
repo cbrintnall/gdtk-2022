@@ -4039,7 +4039,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1805298050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 85, y: 0, z: 15}
+  m_LocalPosition: {x: 45, y: 0, z: 25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4141,11 +4141,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1805298050}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1815167950 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2204915200387232502, guid: ce5c41048b423c64c8ddab22c25c977c, type: 3}
-  m_PrefabInstance: {fileID: 643764865}
-  m_PrefabAsset: {fileID: 0}
 --- !u!82 &1805298057
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4242,6 +4237,11 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!4 &1815167950 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2204915200387232502, guid: ce5c41048b423c64c8ddab22c25c977c, type: 3}
+  m_PrefabInstance: {fileID: 643764865}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1846667995
 PrefabInstance:
   m_ObjectHideFlags: 0
