@@ -3,20 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
+public class TargetState
+{
+    public List<Vector2Int> relativeTargets = new List<Vector2Int>();
+}
+
+public class ProbState
+{
+    public List<double> probs = new List<double>();
+}
+
+public class AttackState
+{
+    public int rollResult;
+    public int damage;
+}
+
+
 public class PlayerDiceController : MonoBehaviour
 {
+    public GameObject dice1Prefab;
+    public GameObject dice2Prefab;
 
-    private PlayerData playerData;
-    private EventManager eventManager;
-
-    public GameObject item1Prefab;
+    private DiceController dice1;
+    private DiceController dice2;
+    private DiceController activeDice;
 
     // Start is called before the first frame update
     void Start()
     {
-        playerData = gameObject.GetComponent<PlayerData>();
-        eventManager = FindObjectOfType<EventManager>();
-        eventManager.Register<OnRollEvent>(onRoll);
+        GameObject o1 = Instantiate(dice1Prefab);
+        dice1 = o1.GetComponent<DiceController>();
+
+        GameObject o2 = Instantiate(dice2Prefab);
+        dice2 = o2.GetComponent<DiceController>();
+
+        activeDice = dice1;
     }
 
     // Update is called once per frame
@@ -24,42 +47,37 @@ public class PlayerDiceController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            playerData.activeDice = playerData.dice1;
+            activeDice = dice1;
             PrintActiveDice();
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            playerData.activeDice = playerData.dice2;
+            activeDice = dice2;
             PrintActiveDice();
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            playerData.activeDice.roll();
+            TargetState targetState = activeDice.getTargetState();
+            string targetStr = "TargetPositions: ";
+            foreach(Vector2Int v in targetState.relativeTargets)
+            {
+                targetStr += $"({v.x}, {v.y}) ";
+            }
+            UnityEngine.Debug.Log(targetStr);
+
+            AttackState attackState = activeDice.getAttackState();
         }
-
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            BaseItem.assignToDice(item1Prefab, playerData.activeDice);
-        }
-
-        if (Input.GetKeyDown(KeyCode.X)) { }
-    }
-
-    void onRoll(OnRollEvent e)
-    {
-        UnityEngine.Debug.Log($"Rolling the active dice: {e.dice.id}");
     }
 
     void PrintActiveDice()
     {
-        DiceData d = playerData.activeDice;
-        UnityEngine.Debug.Log($"Setting active dice to '{d.id}', '{d.description}'");
+        UnityEngine.Debug.Log($"Setting active dice to '{activeDice.diceName}', '{activeDice.diceDesc}'");
         UnityEngine.Debug.Log("The assigned items are: ");
-        foreach (BaseItem item in d.items)
+        foreach (KeyValuePair<string, int> entry in activeDice.itemsCount)
         {
-            UnityEngine.Debug.Log($" - {item.getCount()}x{item.getName()}");
+            UnityEngine.Debug.Log($" - {entry.Value}x{entry.Key}");
         }
     }
 }
