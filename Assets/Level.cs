@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [RequireComponent(typeof(Grid))]
 [ExecuteInEditMode]
@@ -11,7 +12,13 @@ public class Level : MonoBehaviour
 
   Grid grid;
 
+  private void Awake()
+  {
+    grid = GetComponent<Grid>();
+  }
+
   public void SetAtTile(int x, int y, Transform target) => SetAtTile(new Vector2Int(x, y), target);
+
   public void SetAtTile(Vector2Int tile, Transform target)
   {
     target.position = grid.CellToWorld(
@@ -21,21 +28,34 @@ public class Level : MonoBehaviour
     Utils.AlignToGrid(grid, target);
   }
 
-  private void Awake()
+  public T GetObjectAtTile<T>(Vector2Int tile) where T : Component
   {
-    grid = GetComponent<Grid>();
+    return GetObjectsAtTile(tile)
+      .Where(go => go.GetComponent<T>() != null)
+      .Select(go => go.GetComponent<T>())
+      .FirstOrDefault();
   }
 
-  private void Update()
-  {
-    if (Application.isEditor)
-    {
-      for(int i = 0; i < transform.childCount; i++)
-      {
-        Transform childTransform = transform.GetChild(i);
+  public List<GameObject> GetObjectsAtTile(Vector2Int tile) => TestForTile(tile, transform);
 
-        Utils.AlignToGrid(grid, childTransform);
+  private List<GameObject> TestForTile(Vector2Int tile, Transform transform)
+  {
+    List<GameObject> atTiles = new();
+
+    for (int i = 0; i < transform.childCount; i++)
+    {
+      Transform childTransform = transform.GetChild(i);
+
+      atTiles.AddRange(TestForTile(tile, childTransform));
+
+      Vector2Int childTile = Utils.GetTileForTransform(grid, childTransform);
+
+      if (tile == childTile)
+      {
+        atTiles.Add(childTransform.gameObject);
       }
     }
+
+    return atTiles;
   }
 }

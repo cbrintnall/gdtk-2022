@@ -11,7 +11,6 @@ namespace Arc.Lib.Debug
     [SerializeField] float _lineHeight = 20f;
 
     Dictionary<string, string> _data = new Dictionary<string, string>();
-    bool _active;
 
     public void Track(string name, object data)
     {
@@ -25,7 +24,7 @@ namespace Arc.Lib.Debug
     /// <param name="cb"></param>
     public void DoDebug(Action cb)
     {
-      if (_active)
+      if (enabled)
       {
         cb();
       }
@@ -41,8 +40,6 @@ namespace Arc.Lib.Debug
 
     private void OnGUI()
     {
-      if (!_active) return;
-
       int y = 0;
 
       foreach(KeyValuePair<string, string> data in _data)
