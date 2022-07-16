@@ -28,6 +28,12 @@ public class Level : MonoBehaviour
 
   private void FixedUpdate()
   {
-    
+    if (Application.isEditor)
+    {
+      for(int i = 0; i < transform.childCount; i++)
+      {
+        Utils.AlignToGrid(grid, transform.GetChild(i));
+      }
+    }
   }
 }
