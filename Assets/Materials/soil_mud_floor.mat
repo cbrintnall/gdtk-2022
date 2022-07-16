@@ -23,12 +23,13 @@ Material:
   m_Name: soil_mud_floor
   m_Shader: {fileID: 4800000, guid: af4202ea36165f447ba01399be391d0a, type: 3}
   m_ValidKeywords:
-  - _LIGHTINGTYPE_TEXEL
+  - _LIGHTINGTYPE_VERTEX
   - _TEXTUREFILTERING_NEAREST
+  - _VERTEXJITTER
   m_InvalidKeywords:
+  - _DOUBLESIZEDITHER_ON
   - _ENABLEMASKMAP_ON
-  - _REFLECTIONS_ON
-  - _SPECULARTYPE_COOKTORRANCE
+  - _SPECULARTYPE_DISABLED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -100,23 +101,23 @@ Material:
     - _DitherAmbient: 0
     - _DitherDiffuse: 0
     - _DitherSpec: 0
-    - _DoubleSizeDither: 0
+    - _DoubleSizeDither: 1
     - _DstBlend: 0
     - _Emission: 0
     - _EnableMaskMap: 1
     - _Extras: 0
     - _HalfLambert: 0
     - _Lighting: 0
-    - _LightingType: 2
+    - _LightingType: 1
     - _LightmapEmissionStr: 1
     - _MaskNote1: 0
     - _MaskNote2: 0
     - _MaskTint: 0
     - _NormalStrength: 1
     - _QueueOffset: 0
-    - _Reflections: 1
+    - _Reflections: 0
     - _SampleGI: 0
-    - _SpecularType: 0
+    - _SpecularType: 3
     - _SrcBlend: 1
     - _Surface: 0
     - _TextureFiltering: 0
@@ -125,7 +126,7 @@ Material:
     - _VColEmissive: 0
     - _VColSmoothness: 0
     - _VertexEmissiveStr: 1
-    - _VertexJitter: 0
+    - _VertexJitter: 1
     - _VertexJitterResX: 320
     - _VertexJitterResY: 240
     - _VertexLightSmoothness: 0.5

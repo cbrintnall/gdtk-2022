@@ -1,8 +1,6 @@
 using Arc.Lib.Debug;
 using DG.Tweening;
-using UnityEditor;
 using UnityEngine;
-using DG.Tweening;
 using UnityEngine.Events;
 
 public class GridMovement : MonoBehaviour
@@ -47,26 +45,26 @@ public class GridMovement : MonoBehaviour
 
     public void Move(int tiles = 1)
     {
-        Utils.AlignToGrid(Grid, transform);
+      Utils.AlignToGrid(Grid, transform);
 
-        Vector3 dir = new Vector3(
-          Grid.cellSize.x * transform.forward.x,
-          Grid.cellSize.y * transform.forward.y,
-          Grid.cellSize.z * transform.forward.z
-        );
+      Vector3 dir = new Vector3(
+        Grid.cellSize.x * transform.forward.x,
+        Grid.cellSize.y * transform.forward.y,
+        Grid.cellSize.z * transform.forward.z
+      );
 
-        Vector3 dest = dir * tiles;
+      Vector3 dest = dir * tiles;
 
-    if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
-    {
-      moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
-
-      if (!moveTween.IsPlaying())
+      if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
       {
-        moveTween.Play();
+        moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
+
+        if (!moveTween.IsPlaying())
+        {
+          moveTween.Play();
+        }
       }
     }
-  }
 
     public Vector2Int GetTargetTile(int tiles = 1)
     {

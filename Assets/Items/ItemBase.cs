@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BaseItem : MonoBehaviour
+public abstract class BaseItem : ScriptableObject
 {
+  public int Priority;
+
     private protected int count;
-    private protected DiceData dice;
+  private protected DiceData dice;
+
     EventManager eventManager;
 
-    public void Awake()
+    public void OnEnable()
     {
         eventManager = FindObjectOfType<EventManager>();
         count = 1;

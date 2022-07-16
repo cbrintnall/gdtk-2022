@@ -25,6 +25,7 @@ Material:
   m_ValidKeywords:
   - _LIGHTINGTYPE_VERTEX
   - _TEXTUREFILTERING_NEAREST
+  - _VERTEXJITTER
   m_InvalidKeywords:
   - _ENABLEMASKMAP_ON
   - _REFLECTIONS_ON
@@ -191,7 +192,7 @@ Material:
     - _VColEmissive: 0
     - _VColSmoothness: 0
     - _VertexEmissiveStr: 1
-    - _VertexJitter: 0
+    - _VertexJitter: 1
     - _VertexJitterResX: 320
     - _VertexJitterResY: 240
     - _VertexLightSmoothness: 0.5

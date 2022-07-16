@@ -4,7 +4,6 @@ using UnityEngine;
 
 public static class Utils 
 {
-
   public static Vector2Int xy(Vector3Int xyz)
   {
     return new Vector2Int(xyz.x, xyz.z);

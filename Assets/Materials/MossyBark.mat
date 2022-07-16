@@ -25,9 +25,11 @@ Material:
   m_ValidKeywords:
   - _LIGHTINGTYPE_VERTEX
   - _TEXTUREFILTERING_NEAREST
+  - _VERTEXJITTER
   m_InvalidKeywords:
+  - _DITHERDIFFUSE_ON
+  - _DOUBLESIZEDITHER_ON
   - _ENABLEMASKMAP_ON
-  - _REFLECTIONS_ON
   - _SPECULARTYPE_DISABLED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -152,9 +154,9 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DitherAmbient: 0
-    - _DitherDiffuse: 0
+    - _DitherDiffuse: 1
     - _DitherSpec: 0
-    - _DoubleSizeDither: 0
+    - _DoubleSizeDither: 1
     - _DstBlend: 0
     - _Emission: 0
     - _EnableMaskMap: 1
@@ -177,7 +179,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Reflections: 1
+    - _Reflections: 0
     - _SampleGI: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -191,7 +193,7 @@ Material:
     - _VColEmissive: 0
     - _VColSmoothness: 0
     - _VertexEmissiveStr: 1
-    - _VertexJitter: 0
+    - _VertexJitter: 1
     - _VertexJitterResX: 320
     - _VertexJitterResY: 240
     - _VertexLightSmoothness: 0.5

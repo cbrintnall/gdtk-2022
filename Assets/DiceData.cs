@@ -17,7 +17,6 @@ public class DiceData : MonoBehaviour
     public List<BaseItem> items;
     public Dictionary<GameObject, BaseItem> itemDic;
 
-
     private EventManager eventManager;
 
 
@@ -38,6 +37,11 @@ public class DiceData : MonoBehaviour
         eventManager.Publish(e);
 
         UnityEngine.Debug.Log($"Resulting result is {e.result}");
+
+    foreach(var item in this.items)
+    {
+      item.onRoll(e);
+    }
     }
 
 
