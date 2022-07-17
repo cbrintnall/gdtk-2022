@@ -5,8 +5,9 @@ using static Arc.Lib.Utils.SingletonLoader;
 
 public class MusicManager : MonoBehaviour
 {
-  public AudioSource MusicSource;
+  public AudioSource MasterSource, SlaveSource1, SlaveSource2;
   public AudioClip[] MusicClips;
+  public AudioClip[] FragmentClips;
   void Awake()
   {
   }
@@ -14,15 +15,26 @@ public class MusicManager : MonoBehaviour
   private void Start()
   {
     Debug.Log(MusicClips[0]);
-    PlayAmbient(MusicClips[0]);
+    PlayFragmentSong();
   }
 
   public void PlayAmbient(AudioClip clip)
   {
     Debug.Log("Should be playing music");
-    MusicSource.clip = clip;
-    MusicSource.loop = true;
-    MusicSource.Play();
+    MasterSource.clip = clip;
+    MasterSource.loop = true;
+    MasterSource.Play();
+  }
+
+  public void PlayFragmentSong()
+  {
+    MasterSource.clip = FragmentClips[0];
+    MasterSource.loop = true;
+    MasterSource.Play();
+
+    SlaveSource1.clip = FragmentClips[2];
+    SlaveSource1.loop = true;
+    SlaveSource1.Play();
   }
 
   // Update is called once per frame
