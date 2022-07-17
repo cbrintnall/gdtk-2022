@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1639325883}
   m_Layer: 6
   m_Name: D6
-  m_TagString: Untagged
+  m_TagString: Dice
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -117,6 +117,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Overlay: {fileID: 0}
   Main: {fileID: 0}
+  DiceMouseCastLayer:
+    serializedVersion: 2
+    m_Bits: 64
   ScreenWidth: 0
   ScreenHeight: 0
-  Anchor: {x: 0.5, y: 0.3}
+  Anchor: {x: 0.5, y: 0.3, z: 0}

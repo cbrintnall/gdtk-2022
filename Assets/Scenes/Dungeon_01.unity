@@ -5832,7 +5832,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24728
+    surfaceParameter: 24650
     meshQueryIndex: 1
     subMeshQueryIndex: 0
     geometryHashValue: -2301534821047858764
@@ -6383,7 +6383,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &831554736
 GameObject:
@@ -12548,7 +12548,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24742
+    surfaceParameter: 24604
     meshQueryIndex: 6
     subMeshQueryIndex: 0
     geometryHashValue: -253466020696139506
@@ -13521,7 +13521,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6, y: 6, z: 6}
+  m_Size: {x: 10, y: 10, z: 10}
   m_Center: {x: -0.012813926, y: -0.1448788, z: -0.0074219704}
 --- !u!114 &1639325888
 MonoBehaviour:
@@ -13641,7 +13641,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24774
+    surfaceParameter: 24654
     meshQueryIndex: 5
     subMeshQueryIndex: 0
     geometryHashValue: -1228143729758584203
@@ -14068,7 +14068,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 47308
+    surfaceParameter: -277138
     meshQueryIndex: 0
     subMeshQueryIndex: 0
     geometryHashValue: -8242725823585802722
