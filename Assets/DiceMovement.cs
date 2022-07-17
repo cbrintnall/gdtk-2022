@@ -19,12 +19,16 @@ public class DiceMovement : MonoBehaviour
   Vector3 lastCastPosition;
   ConstantRotation rotation;
   LevelManager levelManager;
-
+  Rigidbody rb;
   EnemyController enemyTarget;
   EnemyController lastEnemyTargeted;
+  DiceController controller;
+  Vector2 lastMousePosition;
   
   private void Awake()
   {
+    controller = GetComponent<DiceController>();
+    rb = GetComponent<Rigidbody>();
     rotation = GetComponent<ConstantRotation>();
     dbg = FindObjectOfType<DebugManager>();
     attachedToPlayer = true;
@@ -70,11 +74,30 @@ public class DiceMovement : MonoBehaviour
     }
 
     if (!Input.GetMouseButton(0))
-      attachedToPlayer = true;
+    {
+      if (enemyTarget != null)
+      {
+        OnEnemySelected(enemyTarget);
+      }
+      else
+      {
+        attachedToPlayer = true;
+      }
+    }
   }
 
   private void FixedUpdate()
   {
+    rb.freezeRotation = attachedToPlayer;
+    rb.isKinematic = attachedToPlayer;
+
+    Vector2 mouse = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+    var dirFromMouse = (mouse - lastMousePosition).sqrMagnitude;
+
+    dbg.Track("Torque", dirFromMouse);
+
+    rb.AddRelativeTorque(Vector3.up * dirFromMouse, ForceMode.Impulse);
+
     if (levelManager.CurrentCombat == null)
       return;
 
@@ -110,6 +133,15 @@ public class DiceMovement : MonoBehaviour
     }
 
     lastEnemyTargeted = enemyTarget;
+    lastMousePosition = Input.mousePosition;
+  }
+
+  private void OnEnemySelected(EnemyController enemy)
+  {
+    TargetState targetState = controller.getTargetState();
+    AttackState attackState = controller.getAttackState();
+
+    enemy.Health.Adjust(-attackState.damage);
   }
 
   private void OnDrawGizmosSelected()

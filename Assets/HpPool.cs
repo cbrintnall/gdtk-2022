@@ -22,41 +22,50 @@ public class DeathEvent : BaseEvent
 
 public class HpPool : MonoBehaviour
 {
-    public int MaxHp;
-    int CurrentHp;
+  public int MaxHp;
+  int CurrentHp;
 
-    private EventManager eventManager;
+  private EventManager eventManager;
+  bool dead;
 
+  // Start is called before the first frame update
+  void Start()
+  {
+    CurrentHp = MaxHp;
+    eventManager = FindObjectOfType<EventManager>();
+  }
 
-    // Start is called before the first frame update
-    void Start()
+  public void Die()
+  {
+    dead = true;
+    eventManager.Publish(
+      new DeathEvent()
+      {
+        target = gameObject
+      }
+    );
+  }
+
+  public void Adjust(int dmg)
+  {
+    if (dead) return;
+    CurrentHp -= dmg;
+
+    if (CurrentHp  <= 0)
     {
+      Die();
+    }
+  }
+
+  public void onHeal(HealEvent e)
+  {
+    if (e.target == gameObject)
+    {
+      CurrentHp += e.healing;
+      if (CurrentHp > MaxHp)
+      {
         CurrentHp = MaxHp;
-        eventManager = FindObjectOfType<EventManager>();
+      }
     }
-
-    public void onDamage(DamageEvent e)
-    {
-        if (e.target == gameObject)
-        {
-            CurrentHp -= e.damage;
-
-            if (CurrentHp <= 0)
-            {
-                eventManager.Publish(new DeathEvent { target = gameObject });
-            }
-        }
-    }
-
-    public void onHeal(HealEvent e)
-    {
-        if (e.target == gameObject)
-        {
-            CurrentHp += e.healing;
-            if (CurrentHp > MaxHp)
-            {
-                CurrentHp = MaxHp;
-            }
-        }
-    }
+  }
 }

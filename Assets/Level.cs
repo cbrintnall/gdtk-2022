@@ -7,9 +7,6 @@ using System.Linq;
 [ExecuteInEditMode]
 public class Level : MonoBehaviour
 {
-  public GameObject FloorTile;
-  public Vector2Int Size;
-
   Grid grid;
 
   public Grid GetGrid()

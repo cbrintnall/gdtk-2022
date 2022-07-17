@@ -13,15 +13,18 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
 {
   public Camera OverlayCamera;
   public GameObject Owner => gameObject;
+  public HpPool Health => health;
 
   GridMovement GridMover;
   DebugManager dbg;
   EventManager eventManager;
   LevelManager levelManager;
+  HpPool health;
   public Vector2Int prevTilePos;
 
   private void Start()
   {
+    health = GetComponent<HpPool>();
     GridMover = GetComponent<GridMovement>();
     dbg = FindObjectOfType<DebugManager>();
     eventManager = FindObjectOfType<EventManager>();

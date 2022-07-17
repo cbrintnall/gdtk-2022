@@ -2,7 +2,7 @@ using Arc.Lib.Debug;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 
 public class StartCombatEvent : BaseEvent
 {
@@ -15,10 +15,12 @@ public class StartCombatEvent : BaseEvent
 public class EnemyController : MonoBehaviour, ICombatParticipant
 {
   public GameObject Owner => gameObject;
+  public HpPool Health => health;
 
   [Header("Combat")]
   public GameObject TargetIndicator;
 
+  HpPool health;
   GridMovement GridMover;
   DebugManager dbg;
   LevelManager levelManager;
@@ -30,6 +32,7 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
   void Awake()
   {
+    health = GetComponent<HpPool>();
     TargetIndicator.SetActive(false);
     GridMover = GetComponent<GridMovement>();
     audioplayer = GetComponent<AudioSource>();
