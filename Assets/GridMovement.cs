@@ -45,43 +45,43 @@ public class GridMovement : MonoBehaviour
       .SetEase(Ease.InOutCubic);
   }
 
-    public void Move(int tiles = 1)
+  public void Move(int tiles = 1)
+  {
+    Utils.AlignToGrid(Grid, transform);
+
+    Vector3 dir = new Vector3(
+      Grid.cellSize.x * transform.forward.x,
+      Grid.cellSize.y * transform.forward.y,
+      Grid.cellSize.z * transform.forward.z
+    );
+
+    Vector3 dest = dir * tiles;
+
+    if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
     {
-      Utils.AlignToGrid(Grid, transform);
+      moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
 
-      Vector3 dir = new Vector3(
-        Grid.cellSize.x * transform.forward.x,
-        Grid.cellSize.y * transform.forward.y,
-        Grid.cellSize.z * transform.forward.z
-      );
-
-      Vector3 dest = dir * tiles;
-
-      if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
+      if (!moveTween.IsPlaying())
       {
-        moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
-
-        if (!moveTween.IsPlaying())
-        {
-          moveTween.Play();
-        }
+        moveTween.Play();
       }
     }
+  }
 
-    public Vector2Int GetTargetTile(int tiles = 1)
-    {
-        Vector3 dir = new Vector3(
-          Grid.cellSize.x * transform.forward.x,
-          0,
-          Grid.cellSize.z * transform.forward.z
-        );
+  public Vector2Int GetTargetTile(int tiles = 1)
+  {
+    Vector3 dir = new Vector3(
+      Grid.cellSize.x * transform.forward.x,
+      0,
+      Grid.cellSize.z * transform.forward.z
+    );
 
-        Vector3 dest = dir * tiles + transform.position;
+    Vector3 dest = dir * tiles + transform.position;
 
-        Vector3Int cellPos = Grid.WorldToCell(dest);
+    Vector3Int cellPos = Grid.WorldToCell(dest);
 
-        return new Vector2Int(cellPos.x, cellPos.z);
-    }
+    return new Vector2Int(cellPos.x, cellPos.z);
+  }
 
   public void Rotate(bool right)
   {
