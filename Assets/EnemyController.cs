@@ -23,16 +23,19 @@ public class EnemyController : MonoBehaviour
 
   private AudioSource audioplayer;
 
-  void Start()
+  void Awake()
+  {
+    GridMover = GetComponent<GridMovement>();
+    audioplayer = GetComponent<AudioSource>();
+  }
+
+  private void Start()
   {
     levelManager = FindObjectOfType<LevelManager>();
     eventManager = FindObjectOfType<EventManager>();
     eventManager.Register<PlayerMoveEvent>(OnPlayerMove);
     eventManager.Register<StartCombatEvent>(OnStartCombat);
-
-    GridMover = GetComponent<GridMovement>();
     dbg = FindObjectOfType<DebugManager>();
-    audioplayer = GetComponent<AudioSource>();
   }
 
   public void OnPlayerMove(PlayerMoveEvent e)

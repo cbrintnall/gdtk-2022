@@ -22,6 +22,8 @@ public class GridMovement : MonoBehaviour
   Tweener rotationTween;
   Tweener moveTween;
 
+  bool firstTween = true;
+
   private void Start()
   {
     audioplayer = GetComponent<AudioSource>();
@@ -101,6 +103,12 @@ public class GridMovement : MonoBehaviour
 
   void OnMoveTweenComplete()
   {
+    if (firstTween)
+    {
+      firstTween = false;
+      return;
+    }
+
     if (MoveSounds.Length > 0)
     {
       audioplayer?.PlayOneShot(MoveSounds.Random());
