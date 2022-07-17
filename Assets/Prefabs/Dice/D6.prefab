@@ -11,9 +11,11 @@ GameObject:
   - component: {fileID: 7205667690617749575}
   - component: {fileID: 4696011398050603323}
   - component: {fileID: 4467167725617059572}
-  m_Layer: 0
+  - component: {fileID: 1639325882}
+  - component: {fileID: 1639325883}
+  m_Layer: 6
   m_Name: D6
-  m_TagString: Untagged
+  m_TagString: Dice
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -25,14 +27,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5201199107727381867}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: -0, w: 0.7071067}
+  m_LocalRotation: {x: 0.7069834, y: 0, z: 0, w: 0.7072302}
   m_LocalPosition: {x: -59.279465, y: 9.13, z: 50.006084}
-  m_LocalScale: {x: 0.0001021429, y: 0.00010214288, z: 0.00010214288}
+  m_LocalScale: {x: 0.027423998, y: 0.027423998, z: 0.027423998}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 89.98, y: 0, z: 0}
 --- !u!33 &4696011398050603323
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -40,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5201199107727381867}
-  m_Mesh: {fileID: -4085365545091582050, guid: c9654d689c8a8da429f8f21526109297, type: 3}
+  m_Mesh: {fileID: -2432090755550338912, guid: baf2b9e6022441345aa9fa481fc28712, type: 3}
 --- !u!23 &4467167725617059572
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -83,3 +85,41 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1639325882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5201199107727381867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d50a3eb7fa18641b945488f6cb2779, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DiceData: {fileID: 11400000, guid: 31334ef8e6a5b0d4e8253c7a79abd9e5, type: 2}
+  items:
+  - {fileID: 11400000, guid: 143f5d86493dfa44b866399d9f8b36eb, type: 2}
+  - {fileID: 11400000, guid: 8823fe988c6ec3646b42d9178b777afa, type: 2}
+  - {fileID: 11400000, guid: cdbe51766fa8dd94eba2b05690a38144, type: 2}
+  sortedItems: []
+--- !u!114 &1639325883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5201199107727381867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99cdd17b055807e43aead0c65e73d985, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Overlay: {fileID: 0}
+  Main: {fileID: 0}
+  DiceMouseCastLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  ScreenWidth: 0
+  ScreenHeight: 0
+  Anchor: {x: 0.5, y: 0.3, z: 0}
