@@ -6,14 +6,15 @@ using System.Linq;
 
 public class DiceController : MonoBehaviour
 {
-    public string diceName;
-    public string diceDesc;
+  public Dice DiceData;
+  public List<BaseItem> items;
 
-    public List<BaseItem> items;
+  public string diceName => DiceData.Name;
+  public string diceDesc => DiceData.Description;
 
-    public List<BaseItem> sortedItems;
-    public Dictionary<string, BaseItem> itemsDic;
-    public Dictionary<string, int> itemsCount;
+  public List<BaseItem> sortedItems;
+  public Dictionary<string, BaseItem> itemsDic;
+  public Dictionary<string, int> itemsCount;
 
 
     public void Awake()
