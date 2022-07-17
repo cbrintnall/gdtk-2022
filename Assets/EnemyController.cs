@@ -7,13 +7,18 @@ using UnityEngine;
 public class StartCombatEvent : BaseEvent
 {
   public Vector2Int EnemyPosition;
-  public string EnemyName;
+  public ICombatParticipant[] ExistingParticipants;
 }
 
 [RequireComponent(typeof(GridMovement))]
 [RequireComponent(typeof(HpPool))]
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, ICombatParticipant
 {
+  public GameObject Owner => gameObject;
+
+  [Header("Combat")]
+  public GameObject TargetIndicator;
+
   GridMovement GridMover;
   DebugManager dbg;
   LevelManager levelManager;
@@ -25,6 +30,7 @@ public class EnemyController : MonoBehaviour
 
   void Awake()
   {
+    TargetIndicator.SetActive(false);
     GridMover = GetComponent<GridMovement>();
     audioplayer = GetComponent<AudioSource>();
   }
@@ -34,7 +40,6 @@ public class EnemyController : MonoBehaviour
     levelManager = FindObjectOfType<LevelManager>();
     eventManager = FindObjectOfType<EventManager>();
     eventManager.Register<PlayerMoveEvent>(OnPlayerMove);
-    eventManager.Register<StartCombatEvent>(OnStartCombat);
     dbg = FindObjectOfType<DebugManager>();
   }
 
@@ -65,7 +70,9 @@ public class EnemyController : MonoBehaviour
       if (targetTile == playerTile)
       {
         Debug.Log("Entering combat");
-        eventManager.Publish(new StartCombatEvent { EnemyPosition = GridMover.CurrentTile, EnemyName = name });
+        var participants = new ICombatParticipant[] { this, levelManager.Player };
+
+        eventManager.Publish(new StartCombatEvent { EnemyPosition = GridMover.CurrentTile, ExistingParticipants = participants });
         audioplayer.Play();
       }
       else
@@ -74,6 +81,8 @@ public class EnemyController : MonoBehaviour
       }
     }
   }
+
+  public void SetIsTargeted(bool yes) => TargetIndicator.SetActive(yes);
 
   bool IsPlayerVisible(out Vector3 playerDirection)
   {
@@ -103,21 +112,8 @@ public class EnemyController : MonoBehaviour
     return true;
   }
 
-  public void OnStartCombat(StartCombatEvent e)
+  public void StartTurn()
   {
-    if (e.EnemyName == name)
-    {
-
-    }
-  }
-
-  void Update()
-  {
-
-  }
-
-  private void OnDrawGizmos()
-  {
-    //Gizmos.DrawSphere(targetPos, 4);
+    //throw new System.NotImplementedException();
   }
 }

@@ -9,9 +9,10 @@ public class PlayerMoveEvent : BaseEvent
 
 [RequireComponent(typeof(GridMovement))]
 [RequireComponent(typeof(HpPool))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ICombatParticipant
 {
   public Camera OverlayCamera;
+  public GameObject Owner => gameObject;
 
   GridMovement GridMover;
   DebugManager dbg;
@@ -25,10 +26,7 @@ public class PlayerController : MonoBehaviour
     dbg = FindObjectOfType<DebugManager>();
     eventManager = FindObjectOfType<EventManager>();
     levelManager = FindObjectOfType<LevelManager>();
-    eventManager.Register<StartCombatEvent>(OnStartCombat);
     prevTilePos = GridMover.CurrentTile;
-
-
   }
 
   public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent {
@@ -74,8 +72,14 @@ public class PlayerController : MonoBehaviour
       }
       else
       {
+        var participants = new ICombatParticipant[]
+        {
+          this,
+          collidedWith.GetComponent<EnemyController>()
+        };
+
         eventManager.Publish(new StartCombatEvent { 
-          EnemyName = collidedWith.name,
+          ExistingParticipants = participants,
           EnemyPosition = collidedWith.GetComponent<GridMovement>().CurrentTile});
       }
     }
@@ -83,9 +87,8 @@ public class PlayerController : MonoBehaviour
     dbg.Track("Player Tile", GridMover.CurrentTile);
   }
 
-  public void OnStartCombat(StartCombatEvent e)
+  public void StartTurn()
   {
-    Debug.Log("Player is in combat state now");
-    levelManager.GameState = GameState.IN_COMBAT;
+    
   }
 }
