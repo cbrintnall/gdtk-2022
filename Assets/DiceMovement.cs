@@ -18,12 +18,21 @@ public class DiceMovement : MonoBehaviour
   DebugManager dbg;
   Vector3 lastCastPosition;
   ConstantRotation rotation;
+  LevelManager levelManager;
+
+  EnemyController enemyTarget;
+  EnemyController lastEnemyTargeted;
   
   private void Awake()
   {
     rotation = GetComponent<ConstantRotation>();
     dbg = FindObjectOfType<DebugManager>();
     attachedToPlayer = true;
+  }
+
+  private void Start()
+  {
+    levelManager = FindObjectOfType<LevelManager>();
   }
 
   private void Update()
@@ -62,6 +71,45 @@ public class DiceMovement : MonoBehaviour
 
     if (!Input.GetMouseButton(0))
       attachedToPlayer = true;
+  }
+
+  private void FixedUpdate()
+  {
+    if (levelManager.CurrentCombat == null)
+      return;
+
+    dbg.Track("dice raycast", "");
+    dbg.Track("Targeted enemy", "");
+
+    enemyTarget = null;
+
+    if (!attachedToPlayer)
+    {
+      if (Physics.Raycast(transform.position, Overlay.transform.forward, out RaycastHit hit, float.PositiveInfinity))
+      {
+        dbg.Track("dice raycast", hit.collider.name);
+        if (hit.collider.TryGetComponent(out EnemyController enemy))
+        {
+          if(levelManager.CurrentCombat.IsActiveParticipant(enemy))
+          {
+            dbg.Track("Targeted enemy", enemy.name);
+            enemyTarget = enemy;
+            enemyTarget.SetIsTargeted(true);
+          }
+        }
+      }
+    }
+
+    if (lastEnemyTargeted != null && enemyTarget != null && enemyTarget != lastEnemyTargeted)
+    {
+      lastEnemyTargeted.SetIsTargeted(false);
+    }
+    else if(lastEnemyTargeted != null && enemyTarget == null)
+    {
+      lastEnemyTargeted.SetIsTargeted(false);
+    }
+
+    lastEnemyTargeted = enemyTarget;
   }
 
   private void OnDrawGizmosSelected()
