@@ -11,6 +11,8 @@ public class PlayerMoveEvent : BaseEvent
 [RequireComponent(typeof(HpPool))]
 public class PlayerController : MonoBehaviour
 {
+  public Camera OverlayCamera;
+
   GridMovement GridMover;
   DebugManager dbg;
   EventManager eventManager;
@@ -25,6 +27,8 @@ public class PlayerController : MonoBehaviour
     levelManager = FindObjectOfType<LevelManager>();
     eventManager.Register<StartCombatEvent>(OnStartCombat);
     prevTilePos = GridMover.CurrentTile;
+
+
   }
 
   public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent {

@@ -17,6 +17,7 @@ public class PlayerUI : MonoBehaviour
     var eventManager = FindObjectOfType<EventManager>();
 
     eventManager.Register<DiceGainedEvent>(NewDiceGained);
+    eventManager.Register<PlayerMoveEvent>(_ => CloseUI());
   }
 
   public void NewDiceGained(DiceGainedEvent ev)
@@ -27,12 +28,17 @@ public class PlayerUI : MonoBehaviour
     ItemGainedDescription.text = ev.DiceGained.Description;
   }
 
+  private void CloseUI()
+  {
+    TextPopupBackground.gameObject.SetActive(false);
+    Root.gameObject.SetActive(false);
+  }
+
   private void Update()
   {
     if (TextPopupBackground.activeInHierarchy && Input.GetMouseButtonDown(0))
     {
-      TextPopupBackground.gameObject.SetActive(false);
-      Root.gameObject.SetActive(false);
+      CloseUI();
     }
   }
 }
