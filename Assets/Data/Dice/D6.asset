@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: D6
   m_EditorClassIdentifier: 
   Name: D6
-  Description: A dice imbued with the power of.. Nothing. It's just wet. Why was
-    there even a dice in here?
+  Description: The first of the four totems, a basic die.
   DiceTexture: {fileID: 0}
+  Prefab: {fileID: 5201199107727381867, guid: 9cbb110ab90855349b8075521ef301a5, type: 3}

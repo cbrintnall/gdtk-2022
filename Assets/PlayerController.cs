@@ -1,4 +1,5 @@
 using Arc.Lib.Debug;
+using Cinemachine;
 using UnityEngine;
 
 public class PlayerMoveEvent : BaseEvent
@@ -13,6 +14,7 @@ public class PlayerMoveEvent : BaseEvent
 public class PlayerController : MonoBehaviour, ICombatParticipant
 {
   public Camera OverlayCamera;
+  public CinemachineVirtualCamera FirstPersonCamera;
   public GameObject Owner => gameObject;
   public HpPool Health => health;
 
@@ -52,6 +54,10 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
         }
       );
     }
+
+    eventManager.Register<DialogueOpenEvent>(ev => GridMover.enabled = false);
+    eventManager.Register<DialogueCloseEvent>(ev => GridMover.enabled = true);
+    eventManager.Register<DiceGainedEvent>(OnDiceGained);
   }
 
   public void NotifyPlayerMoved()
@@ -63,6 +69,20 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
     });
 
     flagManager.Incr(Flag.PLAYER_TILES_MOVED);
+  }
+
+  private void OnDiceGained(DiceGainedEvent ev)
+  {
+    // Create the new dice in the world under the overlay camera
+    GameObject newDie = Instantiate(ev.DiceGained.Prefab, OverlayCamera.transform);
+
+    DiceMovement dm = newDie.GetComponent<DiceMovement>();
+
+    Debug.Assert(dm != null);
+
+    dm.Main = FirstPersonCamera;
+    dm.Overlay = OverlayCamera;
+    dm.ResetPosition();
   }
 
   private void Update()

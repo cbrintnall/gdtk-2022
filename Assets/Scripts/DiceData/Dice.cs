@@ -6,4 +6,5 @@ public class Dice : ScriptableObject
   public string Name;
   public string Description;
   public Texture DiceTexture;
+  public GameObject Prefab;
 }

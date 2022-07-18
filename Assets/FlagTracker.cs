@@ -26,31 +26,24 @@ public class FlagTracker : MonoBehaviour
     flagManager = FindObjectOfType<FlagManager>();
     eventManager = FindObjectOfType<EventManager>();
 
-    SyncObjectStateToFlag();
+    CheckForFlag();
 
-    if (!gameObject.activeInHierarchy)
-    {
-      eventManager.Register<FlagChangedEvent>(OnFlagChanged);
-    }
+    eventManager.Register<FlagChangedEvent>(OnFlagChanged);
   }
 
   void OnFlagChanged(FlagChangedEvent ev)
   {
     if (ev.Flag == Flag)
     {
-      SyncObjectStateToFlag();
+      CheckForFlag();
     }
   }
 
-  void SyncObjectStateToFlag()
+  void CheckForFlag()
   {
-    bool isHappening = flagManager.HasHappenedNTimes(Flag, Count);
-
-    gameObject.SetActive(isHappening);
-
-    if (isHappening)
+    if (flagManager.HasHappenedNTimes(Flag, Count))
     {
-      Debug.Log($"Enabling {name}, flag {Flag} has happened at least {Count} times.");
+      Debug.Log($"Triggering {name}, flag {Flag} has happened at least {Count} times.");
 
       OnFlag?.Invoke();
 

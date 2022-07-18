@@ -12,6 +12,16 @@ public class TextUIPayload
   public AudioClip OpenSound;
 }
 
+public class DialogueCloseEvent : BaseEvent 
+{
+  public TextUIPayload Payload;
+}
+
+public class DialogueOpenEvent : BaseEvent
+{
+  public TextUIPayload Payload;
+}
+
 public class PlayerUI : MonoBehaviour
 {
   public GameObject TextPopupBackground;
@@ -24,21 +34,13 @@ public class PlayerUI : MonoBehaviour
   [Header("Audio")]
   public AudioSource player;
 
+  EventManager eventManager;
+  TextUIPayload lastPayload;
+
   private void Start()
   {
-    var eventManager = FindObjectOfType<EventManager>();
-
-    eventManager.Register<DiceGainedEvent>(NewDiceGained);
-    eventManager.Register<PlayerMoveEvent>(_ => CloseUI());
+    eventManager = FindObjectOfType<EventManager>();
   }
-
-  void NewDiceGained(DiceGainedEvent ev) => ShowText(
-    new TextUIPayload()
-    {
-      TopText = $"You've gained \"{ev.DiceGained.Name}\"",
-      BottomText = ev.DiceGained.Description
-    }
-  );
 
   public void ShowText(TextUIPayload payload) 
   {
@@ -46,6 +48,15 @@ public class PlayerUI : MonoBehaviour
     Root.gameObject.SetActive(true);
     ItemGainedText.text = payload.TopText;
     ItemGainedDescription.text = payload.BottomText;
+
+    eventManager.Publish(
+      new DialogueOpenEvent()
+      {
+        Payload = payload
+      }
+    );
+
+    lastPayload = payload;
 
     if (payload.OpenSound != null)
     {
@@ -57,6 +68,8 @@ public class PlayerUI : MonoBehaviour
   {
     TextPopupBackground.gameObject.SetActive(false);
     Root.gameObject.SetActive(false);
+
+    eventManager.Publish(new DialogueCloseEvent() { Payload = lastPayload });
   }
 
   private void Update()

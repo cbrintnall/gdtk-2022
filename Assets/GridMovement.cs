@@ -43,10 +43,16 @@ public class GridMovement : MonoBehaviour
       .SetRecyclable(true)
       .OnComplete(OnMoveTweenComplete)
       .SetEase(Ease.InOutCubic);
+
+    Debug.Log($"Setting initial rotation to {transform.rotation.eulerAngles.y}");
+    targetRotation = transform.rotation.eulerAngles.y;
   }
 
   public void Move(int tiles = 1)
   {
+    // without ignoring, you can glitch collision or the grid
+    if (moveTween.IsPlaying() || rotationTween.IsPlaying()) return;
+
     Utils.AlignToGrid(Grid, transform);
 
     Vector3 dir = new Vector3(
@@ -57,7 +63,7 @@ public class GridMovement : MonoBehaviour
 
     Vector3 dest = dir * tiles;
 
-    if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average()))
+    if (!Physics.Raycast(transform.position, dest.normalized, out RaycastHit hit, Grid.cellSize.Average(), ~0, QueryTriggerInteraction.Ignore))
     {
       moveTween.ChangeEndValue(transform.position + new Vector3(dest.x, 0f, dest.z), true);
 
@@ -85,6 +91,9 @@ public class GridMovement : MonoBehaviour
 
   public void Rotate(bool right)
   {
+    // without ignoring, you can glitch collision or the grid
+    if (moveTween.IsPlaying() || rotationTween.IsPlaying()) return;
+
     targetRotation += right ? 90f : -90f;
 
     Quaternion target = Quaternion.Euler(

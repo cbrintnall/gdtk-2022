@@ -12,6 +12,7 @@ public class DiceMovement : MonoBehaviour
   public LayerMask DiceMouseCastLayer;
   public Vector3 Anchor;
   public float ZOffset = 1f;
+  public float SnapSpeed = 5f;
 
   // If the dice is attached to the player or being moved into world space
   public bool attachedToPlayer = true;
@@ -34,6 +35,8 @@ public class DiceMovement : MonoBehaviour
     attachedToPlayer = true;
   }
 
+  public void ResetPosition() => transform.position = Overlay.ViewportToWorldPoint(Anchor);
+
   private void Start()
   {
     levelManager = FindObjectOfType<LevelManager>();
@@ -45,7 +48,9 @@ public class DiceMovement : MonoBehaviour
 
     if (attachedToPlayer)
     {
-      transform.position = Overlay.ViewportToWorldPoint(Anchor);
+      Vector3 targetPosition = Overlay.ViewportToWorldPoint(Anchor);
+
+      transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * SnapSpeed);
 
       var ray = Overlay.ScreenPointToRay(Input.mousePosition);
 
