@@ -112,6 +112,7 @@ public class GridMovement : MonoBehaviour
     if (MoveSounds.Length > 0)
     {
       audioplayer?.PlayOneShot(MoveSounds.Random());
+      audioplayer.pitch = Random.Range(.9f, 1.1f);
     }
     OnMovementComplete?.Invoke();
   }

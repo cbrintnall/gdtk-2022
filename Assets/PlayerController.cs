@@ -9,12 +9,21 @@ public class PlayerMoveEvent : BaseEvent
 
 [RequireComponent(typeof(GridMovement))]
 [RequireComponent(typeof(HpPool))]
+[RequireComponent(typeof(AudioSource))]
 public class PlayerController : MonoBehaviour, ICombatParticipant
 {
   public Camera OverlayCamera;
   public GameObject Owner => gameObject;
   public HpPool Health => health;
 
+  [Header("Audio")]
+  public AudioClip IntroRockCrumbleNoise;
+
+  [Header("UI")]
+  public PlayerUI ui;
+
+  AudioSource player;
+  FlagManager flagManager;
   GridMovement GridMover;
   DebugManager dbg;
   EventManager eventManager;
@@ -30,11 +39,31 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
     eventManager = FindObjectOfType<EventManager>();
     levelManager = FindObjectOfType<LevelManager>();
     prevTilePos = GridMover.CurrentTile;
+    flagManager = FindObjectOfType<FlagManager>();
+
+    if (!flagManager.HasHappenedAtLeastOnce(Flag.INTRO_FINISHED))
+    {
+      ui.ShowText(
+        new TextUIPayload()
+        {
+          TopText = "You wake up in a mysterious swamp...",
+          BottomText = "The cave you came in had collapsed, the exit now blocked. The only path is forward.",
+          OpenSound = IntroRockCrumbleNoise
+        }
+      );
+    }
   }
 
-  public void NotifyPlayerMoved() => eventManager.Publish(new PlayerMoveEvent {
-    OldTile = prevTilePos,
-    NewTile = GridMover.CurrentTile });
+  public void NotifyPlayerMoved()
+  {
+    eventManager.Publish(new PlayerMoveEvent
+    {
+      OldTile = prevTilePos,
+      NewTile = GridMover.CurrentTile
+    });
+
+    flagManager.Incr(Flag.PLAYER_TILES_MOVED);
+  }
 
   private void Update()
   {
