@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Arc.Lib.Utils;
+using UnityEngine.UI;
+using System.Text;
 
 namespace Arc.Lib.Debug 
 {
@@ -11,6 +13,42 @@ namespace Arc.Lib.Debug
     [SerializeField] float _lineHeight = 20f;
 
     Dictionary<string, string> _data = new Dictionary<string, string>();
+
+    StringBuilder command = new StringBuilder();
+    bool active;
+
+    private void Update()
+    {
+      if (Input.GetKeyDown(KeyCode.Tilde))
+      {
+        active = !active;
+      }
+      else
+      {
+        foreach (char str in Input.inputString)
+        {
+          if (str == '\b')
+          {
+            if (command.Length > 0)
+              command.Remove(command.Length - 1, 1);
+          }
+          else if ((str == '\n') || (str == '\r'))
+          {
+            SubmitCommand(command.ToString());
+            command = new StringBuilder();
+          }
+          else
+          {
+            command.Append(str);
+          }
+        }
+      }
+    }
+
+    public void SubmitCommand(string command)
+    {
+      print($"Submitting command: {command}");
+    }
 
     public void Track(string name, object data)
     {
@@ -40,6 +78,8 @@ namespace Arc.Lib.Debug
 
     private void OnGUI()
     {
+      if(!active) return;
+
       int y = 0;
 
       foreach(KeyValuePair<string, string> data in _data)
@@ -54,6 +94,16 @@ namespace Arc.Lib.Debug
 
         y++;
       }
+
+      GUI.Label(
+        new Rect(
+          0f,
+          Screen.height - _lineHeight,
+          Screen.width,
+          _lineHeight*3f
+        ),
+        command.ToString()
+      );
     }
   }
 }

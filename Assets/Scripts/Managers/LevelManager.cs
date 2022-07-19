@@ -49,6 +49,13 @@ public class LevelManager : MonoBehaviour
     GameState = GameState.EXPLORING;
 
     eventManager.Register<StartCombatEvent>(SetupCombat);
+    eventManager.Register<CombatEndEvent>(EndCombat);
+  }
+
+  void EndCombat(CombatEndEvent ev)
+  {
+    // combat game object handles destroying itself 
+    GameState = GameState.EXPLORING;
   }
 
   void SetupCombat(StartCombatEvent ev)

@@ -26,8 +26,6 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
   LevelManager levelManager;
   EventManager eventManager;
 
-  Vector3 targetPos;
-
   private AudioSource audioplayer;
 
   void Awake()
@@ -36,6 +34,8 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
     TargetIndicator.SetActive(false);
     GridMover = GetComponent<GridMovement>();
     audioplayer = GetComponent<AudioSource>();
+
+    health.Died.AddListener(() => Destroy(gameObject));
   }
 
   private void Start()
@@ -48,13 +48,11 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
   public void OnPlayerMove(PlayerMoveEvent e)
   {
-    Debug.Log("Enemy got a player move event");
     StartCoroutine(Utils.Defer(ActEnemy));
   }
 
   public void ActEnemy()
   {
-    Debug.Log("MoveEnemy");
     Vector3 dir;
     if (IsPlayerVisible(out dir))
     {
@@ -67,7 +65,6 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
       transform.forward = moveDir;
 
       Vector2Int targetTile = GridMover.GetTargetTile();
-      targetPos = GridMover.Grid.CellToWorld(Utils.xyz(targetTile)) - GridMover.Grid.cellSize / 2;
       Vector2Int playerTile = levelManager.Player.GetComponent<GridMovement>().CurrentTile;
 
       if (targetTile == playerTile)
@@ -117,6 +114,14 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
   public void StartTurn()
   {
-    //throw new System.NotImplementedException();
+    StartCoroutine(FakeAttack(1));
+  }
+
+  // TODO: this is just behavior stubbing, will replace with real combat
+  IEnumerator FakeAttack(int dmg)
+  {
+    yield return new WaitForSeconds(2.5f);
+    FindObjectOfType<PlayerController>().Health.Damage(dmg);
+    levelManager.CurrentCombat.EndCurrentTurn();
   }
 }

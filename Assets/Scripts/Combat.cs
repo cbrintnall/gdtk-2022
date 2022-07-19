@@ -1,6 +1,7 @@
 ﻿using Arc.Lib.Debug;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class CombatEndEvent : BaseEvent
 { }
@@ -9,6 +10,7 @@ public class Combat : MonoBehaviour
 {
   const int MaxParticipants = 3;
   public int ParticipantCount => turnOrder.Count;
+  public ICombatParticipant CurrentTurnParticipant => turnOrder.Peek();
 
   Queue<ICombatParticipant> turnOrder = new();
 
@@ -31,6 +33,8 @@ public class Combat : MonoBehaviour
     FindObjectOfType<EventManager>().Publish(
       new CombatEndEvent() { }
     );
+
+    Destroy(gameObject);
   }
 
   void OnDeath(DeathEvent ev)
@@ -82,17 +86,22 @@ public class Combat : MonoBehaviour
     return true;
   }
 
-  public bool IsActiveParticipant(ICombatParticipant p)
-  {
-    Debug.LogError("Finish this fucking function");
-    return true;
-  }
+  // it's garbage but it works
+  public bool IsActiveParticipant(ICombatParticipant p) => turnOrder.ToList().Contains(p);
+
+  public bool IsTurn(ICombatParticipant p) => CurrentTurnParticipant == p;
 
   public void Begin() => DoNextTurn();
 
+  public void EndCurrentTurn()
+  {
+    turnOrder.Dequeue();
+    DoNextTurn();
+  }
+
   private void DoNextTurn()
   {
-    ICombatParticipant nextTurn = turnOrder.Dequeue();
+    ICombatParticipant nextTurn = turnOrder.Peek();
 
     nextTurn.StartTurn();
 

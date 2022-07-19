@@ -17,11 +17,13 @@ public class FlagTracker : MonoBehaviour
   public bool DestroyOnTrigger = true;
   [Tooltip("Optional event")]
   public UnityEvent OnFlag;
-
+  [Tooltip("Fired when the flag is NOT true")]
+  public UnityEvent OnFlagFailed;
+  
   FlagManager flagManager;
   EventManager eventManager;
 
-  private void Start()
+  private void Awake()
   {
     flagManager = FindObjectOfType<FlagManager>();
     eventManager = FindObjectOfType<EventManager>();
@@ -52,6 +54,10 @@ public class FlagTracker : MonoBehaviour
         eventManager.Unregister<FlagChangedEvent>(OnFlagChanged);
         Destroy(this);
       }
+    }
+    else
+    {
+      OnFlagFailed?.Invoke();
     }
   }
 }

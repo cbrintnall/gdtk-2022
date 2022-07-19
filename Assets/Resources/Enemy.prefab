@@ -275,7 +275,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 783f4c613e6abdf45961b8d3cf381955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHp: 0
+  MaxHp: 20
+  CurrentHp: 0
+  Hurt:
+    m_PersistentCalls:
+      m_Calls: []
+  Healed:
+    m_PersistentCalls:
+      m_Calls: []
+  Died:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &9158042431289746190
 PrefabInstance:
   m_ObjectHideFlags: 0

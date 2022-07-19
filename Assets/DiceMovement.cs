@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using Arc.Lib.Debug;
+using DG.Tweening;
 
 public class DiceMovement : MonoBehaviour
 {
+  [Header("Cameras")]
   public Camera Overlay;
   public CinemachineVirtualCamera Main;
 
+  [Header("Audio")]
+  public AudioSource Player;
+  public AudioClip Pickup;
+  public AudioClip Drop;
+  public AudioClip RollSound;
+
+  [Header("Positioning")]
   public LayerMask DiceMouseCastLayer;
   public Vector3 Anchor;
   public float ZOffset = 1f;
@@ -16,6 +25,7 @@ public class DiceMovement : MonoBehaviour
 
   // If the dice is attached to the player or being moved into world space
   public bool attachedToPlayer = true;
+  bool attacking;
   DebugManager dbg;
   Vector3 lastCastPosition;
   ConstantRotation rotation;
@@ -24,6 +34,7 @@ public class DiceMovement : MonoBehaviour
   EnemyController enemyTarget;
   EnemyController lastEnemyTargeted;
   DiceController controller;
+  PlayerController player;
   Vector2 lastMousePosition;
   
   private void Awake()
@@ -32,6 +43,7 @@ public class DiceMovement : MonoBehaviour
     rb = GetComponent<Rigidbody>();
     rotation = GetComponent<ConstantRotation>();
     dbg = FindObjectOfType<DebugManager>();
+    player = FindObjectOfType<PlayerController>();
     attachedToPlayer = true;
   }
 
@@ -44,7 +56,9 @@ public class DiceMovement : MonoBehaviour
 
   private void Update()
   {
-    rotation.enabled = attachedToPlayer;
+    rotation.enabled = attachedToPlayer && !attacking;
+
+    if (attacking) return;
 
     if (attachedToPlayer)
     {
@@ -60,7 +74,10 @@ public class DiceMovement : MonoBehaviour
       {
         diceHitName = hit.collider.name;
         if (Input.GetMouseButtonDown(0))
+        {
           attachedToPlayer = false;
+          Player?.PlayOneShot(Pickup);
+        }
       }
 
       dbg.Track("Dice hit", diceHitName);
@@ -80,13 +97,17 @@ public class DiceMovement : MonoBehaviour
 
     if (!Input.GetMouseButton(0))
     {
-      if (enemyTarget != null)
+      if (levelManager.CurrentCombat != null && levelManager.CurrentCombat.IsTurn(player) && enemyTarget != null)
       {
         OnEnemySelected(enemyTarget);
       }
       else
       {
-        attachedToPlayer = true;
+        if (!attachedToPlayer)
+        {
+          attachedToPlayer = true;
+          Player?.PlayOneShot(Drop);
+        }
       }
     }
   }
@@ -95,6 +116,8 @@ public class DiceMovement : MonoBehaviour
   {
     rb.freezeRotation = attachedToPlayer;
     rb.isKinematic = attachedToPlayer;
+
+    if (attacking) return;
 
     Vector2 mouse = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
     var dirFromMouse = (mouse - lastMousePosition).sqrMagnitude;
@@ -113,7 +136,11 @@ public class DiceMovement : MonoBehaviour
 
     if (!attachedToPlayer)
     {
-      if (Physics.Raycast(transform.position, Overlay.transform.forward, out RaycastHit hit, float.PositiveInfinity))
+      if (!levelManager.CurrentCombat.IsTurn(player))
+      {
+        // TODO: make error noise, not your turn bozo!
+      }
+      else if (Physics.Raycast(transform.position, Overlay.transform.forward, out RaycastHit hit, float.PositiveInfinity))
       {
         dbg.Track("dice raycast", hit.collider.name);
         if (hit.collider.TryGetComponent(out EnemyController enemy))
@@ -146,7 +173,33 @@ public class DiceMovement : MonoBehaviour
     TargetState targetState = controller.getTargetState();
     AttackState attackState = controller.getAttackState();
 
-    enemy.Health.Adjust(-attackState.damage);
+    Player?.PlayOneShot(RollSound);
+
+    var seq = DOTween.Sequence();
+
+    attacking = true;
+
+    seq.Append(
+      transform.DORotate(transform.up * 360f * 5f, 1f, RotateMode.LocalAxisAdd)
+    );
+
+    seq.Append(
+      transform.DOLookAt(Overlay.transform.position, .1f)
+    );
+
+    seq.Append(
+      transform.DOPunchScale(Vector3.one * .05f, 1f)
+    );
+
+    seq.AppendInterval(2.5f);
+
+    seq.OnComplete(() =>
+    {
+      attacking = false;
+      attachedToPlayer = true;
+      enemy.Health.Damage(attackState.damage);
+      levelManager.CurrentCombat.EndCurrentTurn();
+    });
   }
 
   private void OnDrawGizmosSelected()

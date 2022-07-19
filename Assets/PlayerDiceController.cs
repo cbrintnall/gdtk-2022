@@ -50,6 +50,8 @@ public class PlayerDiceController : MonoBehaviour
       }
     );
 
+    flagManager.Incr(Flag.DICE_GAINED);
+
     var ui = FindObjectOfType<PlayerUI>();
 
     ui.ShowText(

@@ -1,7 +1,8 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 public class DamageEvent : BaseEvent
 {
@@ -22,8 +23,14 @@ public class DeathEvent : BaseEvent
 
 public class HpPool : MonoBehaviour
 {
+  public float NormalizedHP => (float)CurrentHp/(float)MaxHp;
   public int MaxHp;
-  int CurrentHp;
+  [PropertyRange(0, "MaxHp")]
+  public int CurrentHp;
+
+  public UnityEvent Hurt;
+  public UnityEvent Healed;
+  public UnityEvent Died;
 
   private EventManager eventManager;
   bool dead;
@@ -38,6 +45,7 @@ public class HpPool : MonoBehaviour
   public void Die()
   {
     dead = true;
+    Died?.Invoke();
     eventManager.Publish(
       new DeathEvent()
       {
@@ -46,9 +54,22 @@ public class HpPool : MonoBehaviour
     );
   }
 
-  public void Adjust(int dmg)
+  public void Damage(int dmg) => Adjust(dmg);
+  public void Heal(int amt) => Adjust(-amt);
+
+  private void Adjust(int dmg)
   {
     if (dead) return;
+
+    if (Mathf.Sign(dmg) >= 0)
+    {
+      Hurt?.Invoke();
+    }
+    else
+    {
+      Healed?.Invoke();
+    }
+
     CurrentHp -= dmg;
 
     if (CurrentHp  <= 0)

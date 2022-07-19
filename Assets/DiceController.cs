@@ -91,10 +91,8 @@ public class DiceController : MonoBehaviour
 
     public AttackState getAttackState() {
         ProbState probState = getProbState();
-        UnityEngine.Debug.Log(string.Join(", ", probState.probs));
 
         int result = weightedSample(probState.probs) + 1;
-        UnityEngine.Debug.Log($"Initial Result is {result}");
 
         AttackState attackState = new AttackState();
         attackState.rollResult = result;
@@ -103,8 +101,6 @@ public class DiceController : MonoBehaviour
         {
             item.updateAttackState(attackState);
         }
-
-        UnityEngine.Debug.Log($"Final Result is {attackState.rollResult}");
 
         return attackState;
     }

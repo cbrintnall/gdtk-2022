@@ -31,6 +31,10 @@ public class PlayerUI : MonoBehaviour
   public TextMeshProUGUI ItemGainedText;
   public TextMeshProUGUI ItemGainedDescription;
 
+  [Header("Combat")]
+  public GameObject ParticipantsRoot;
+  public CombatPanel PanelPrefab;
+
   [Header("Audio")]
   public AudioSource player;
 
@@ -40,6 +44,8 @@ public class PlayerUI : MonoBehaviour
   private void Start()
   {
     eventManager = FindObjectOfType<EventManager>();
+    eventManager.Register<StartCombatEvent>(OnCombatBegin);
+    eventManager.Register<CombatEndEvent>(OnCombatEnd);
   }
 
   public void ShowText(TextUIPayload payload) 
@@ -61,6 +67,24 @@ public class PlayerUI : MonoBehaviour
     if (payload.OpenSound != null)
     {
       player.PlayOneShot(payload.OpenSound);
+    }
+  }
+
+  void OnCombatEnd(CombatEndEvent ev)
+  {
+    for(int i = 0; i < ParticipantsRoot.transform.childCount; i++)
+    {
+      Destroy(ParticipantsRoot.transform.GetChild(i).gameObject);
+    }
+  }
+
+  void OnCombatBegin(StartCombatEvent ev)
+  {
+    foreach(var participant in ev.ExistingParticipants)
+    {
+      CombatPanel panel = Instantiate(PanelPrefab, ParticipantsRoot.transform);
+
+      panel.Participant = participant;
     }
   }
 

@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
   [Header("UI")]
   public PlayerUI ui;
 
+  StackingBool canMove = new();
   AudioSource player;
   FlagManager flagManager;
   GridMovement GridMover;
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
   EventManager eventManager;
   LevelManager levelManager;
   HpPool health;
+
   public Vector2Int prevTilePos;
 
   private void Start()
@@ -42,6 +44,11 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
     levelManager = FindObjectOfType<LevelManager>();
     prevTilePos = GridMover.CurrentTile;
     flagManager = FindObjectOfType<FlagManager>();
+    eventManager.Register<StartCombatEvent>(ev => canMove.Incr());
+    eventManager.Register<CombatEndEvent>(ev => canMove.Decr());
+    eventManager.Register<DialogueOpenEvent>(ev => canMove.Incr());
+    eventManager.Register<DialogueCloseEvent>(ev => canMove.Decr());
+    eventManager.Register<DiceGainedEvent>(OnDiceGained);
 
     if (!flagManager.HasHappenedAtLeastOnce(Flag.INTRO_FINISHED))
     {
@@ -54,10 +61,6 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
         }
       );
     }
-
-    eventManager.Register<DialogueOpenEvent>(ev => GridMover.enabled = false);
-    eventManager.Register<DialogueCloseEvent>(ev => GridMover.enabled = true);
-    eventManager.Register<DiceGainedEvent>(OnDiceGained);
   }
 
   public void NotifyPlayerMoved()
@@ -87,9 +90,9 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
 
   private void Update()
   {
-    if (Input.GetKeyDown(KeyCode.Tilde))
+    if (Input.GetKeyDown(KeyCode.F))
     {
-      dbg.enabled = !dbg.enabled;
+      GetComponent<HpPool>().Damage(1);
     }
 
     if (Input.GetKeyDown(KeyCode.D))
@@ -101,7 +104,7 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
       GridMover.Rotate(false);
     }
 
-    if (Input.GetKeyDown(KeyCode.W) && levelManager.GameState == GameState.EXPLORING)
+    if (Input.GetKeyDown(KeyCode.W) && canMove)
     {
       Vector2Int targetTile = GridMover.GetTargetTile();
       var enemies = FindObjectsOfType<EnemyController>();
