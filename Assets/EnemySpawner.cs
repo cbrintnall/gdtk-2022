@@ -5,9 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(FlagTracker))]
 public class EnemySpawner : MonoBehaviour
 {
+  [Tooltip("The enemy to spawn")]
   public GameObject Enemy;
+  [Tooltip("The amount of tiles the player needs to move before this will spawn")]
   public int SpawnEnemyTurnInterval = 4;
-
+  [Tooltip("Max amount of enemies that can be active at the same time")]
+  public int MaxEnemiesAtOnce = 1;
   List<GameObject> enemies = new();
   EventManager eventManager;
 
@@ -39,8 +42,11 @@ public class EnemySpawner : MonoBehaviour
 
   public void SpawnEnemyAt(Vector3 coord)
   {
+    //bail out if we have too many spawned
+    if (transform.childCount >= MaxEnemiesAtOnce) return;
+
     var grid = GetGrid();
-    var enemy = Instantiate(Enemy, grid.transform);
+    var enemy = Instantiate(Enemy, transform);
     enemy.GetComponent<GridMovement>().Grid = grid;
     enemy.transform.position = coord;
 

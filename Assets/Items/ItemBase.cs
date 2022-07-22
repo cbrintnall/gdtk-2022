@@ -2,35 +2,60 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-public abstract class BaseItem : ScriptableObject
+public abstract class BaseItem : Pickupable
 {
+  public AudioClip RejectedSound;
 
-    public string assignToDice(DiceController dice)
+  public abstract int getPriority();
+  public abstract bool HandleAssignToDice(DiceController dc);
+  public virtual void updateTargetState(TargetState state) { }
+  public virtual void updateProbState(ProbState state) { }
+  public virtual void updateAttackState(AttackState state) { }
+
+  public override bool GiveToPlayer(PlayerController player)
+  {
+    var dc = player.GetComponent<PlayerDiceController>();
+    var ui = FindObjectOfType<PlayerUI>();
+
+    if (dc.HeldDie == null)
     {
-        UnityEngine.Debug.Log($"attempting to assign {getName()} to {dice.diceName}");
-
-        BaseItem item;
-        if (!dice.itemsDic.TryGetValue(getName(), out item)) { item = this; }
-
-        if (item.handleAssignToDice(dice))
+      ui.ShowText(
+        new TextUIPayload()
         {
-            dice.addItem(item);
-            UnityEngine.Debug.Log($"Added {getName()} to {dice.diceName}");
-            return "added";
+          TopText = "You are not powerful enough to equip this..",
+          BottomText = "This item appears to have an infinite weight, as you cannot even make it budge. Perhaps something else around here can help you?",
+          OpenSound = RejectedSound
         }
-        UnityEngine.Debug.Log($"Rejected {getName()} to {dice.diceName}");
-        return "rejected";
+      );
+
+      return false;
     }
 
-    public abstract string getName();
-    public abstract int getPriority();
-    public virtual string getDesc() { return ""; }
+    if (HandleAssignToDice(dc.HeldDie))
+    {
+      var flagManager = FindObjectOfType<FlagManager>();
 
-    public virtual bool handleAssignToDice(DiceController dice) { return true; }
-    public virtual void updateTargetState(TargetState state) { }
-    public virtual void updateProbState(ProbState state) { }
-    public virtual void updateAttackState(AttackState state) { }
+      flagManager.Incr(Flag.ITEM_GAINED);
 
+      ui.ShowText(
+        new TextUIPayload()
+        {
+          TopText = ItemGainedText(this.Name),
+          BottomText = Description,
+          OpenSound = PickupSound
+        }
+      );
+
+      return true;
+    }
+    else
+    {
+      // If we couldn't assign the die.. TODO:
+      // play sound
+      // notify player
+      // dont allow wherever it came from to disable, they should be able to try and pick it up again
+    }
+
+    return false;
+  }
 }

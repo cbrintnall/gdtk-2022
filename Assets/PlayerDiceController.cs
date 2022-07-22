@@ -25,42 +25,33 @@ public class DiceGainedEvent : BaseEvent
   public Dice DiceGained;
 }
 
+[RequireComponent(typeof(PlayerController))]
 public class PlayerDiceController : MonoBehaviour
 {
-  public List<Dice> HeldDice;
-  public AudioClip PickupAudio;
-
-  private EventManager eventManager;
-  private FlagManager flagManager;
+  // TODO: allow holding multiple dice, for now theres only one
+  public DiceController HeldDie;
+  private PlayerController playerController;
 
   private void Start()
   {
-    eventManager = FindObjectOfType<EventManager>();
-    flagManager = FindObjectOfType<FlagManager>();
+    playerController = GetComponent<PlayerController>();
   }
 
   public void GainDice(Dice dice)
   {
-    HeldDice.Add(dice);
+    // Create the new dice in the world under the overlay camera
+    GameObject newDie = Instantiate(dice.Prefab, playerController.OverlayCamera.transform);
 
-    eventManager.Publish(
-      new DiceGainedEvent
-      {
-        DiceGained = dice
-      }
-    );
+    DiceMovement dm = newDie.GetComponent<DiceMovement>();
+    DiceController dc = newDie.GetComponent<DiceController>();
 
-    flagManager.Incr(Flag.DICE_GAINED);
+    Debug.Assert(dm != null);
 
-    var ui = FindObjectOfType<PlayerUI>();
+    dc.AddItems(dice.DefaultItems);
+    dm.Main = playerController.FirstPersonCamera;
+    dm.Overlay = playerController.OverlayCamera;
+    dm.ResetPosition();
 
-    ui.ShowText(
-      new TextUIPayload()
-      {
-        TopText = $"You've gained \"{dice.Name}\"",
-        BottomText = dice.Description,
-        OpenSound = PickupAudio
-      }
-    );
+    HeldDie = dc;
   }
 }

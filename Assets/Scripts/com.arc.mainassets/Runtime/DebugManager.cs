@@ -4,9 +4,51 @@ using UnityEngine;
 using Arc.Lib.Utils;
 using UnityEngine.UI;
 using System.Text;
+using System.Linq;
 
 namespace Arc.Lib.Debug 
 {
+  [AttributeUsage(AttributeTargets.Method)]
+  class Command : Attribute { }
+
+  class CommandHandler
+  {
+    string ValidHandlers => string.Join(",", handlers.Keys);
+    Dictionary<string, Action<string[]>> handlers;
+
+    public CommandHandler()
+    {
+      handlers = new Dictionary<string, Action<string[]>>()
+      {
+        ["cl"] = HandleCall,
+        ["set"] = HandleSet,
+      };
+    }
+
+    public void OnCommand(string command)
+    {
+      string[] split = command.Split(" ");
+
+      if (split.Length <= 1)
+      {
+        UnityEngine.Debug.LogWarning($"Command {command} is invalid, separate by spaces and must begin with a recognized keyword; {ValidHandlers}");
+        return;
+      }else if (!handlers.Keys.Contains(split[0])){
+        UnityEngine.Debug.LogWarning($"Handler {split[0]} is not a registered handler, try: {ValidHandlers}");
+      }
+    }
+
+    private void HandleCall(string[] str)
+    {
+
+    }
+
+    private void HandleSet(string[] str)
+    {
+
+    }
+  }
+
   [SingletonLoader.Singleton]
   public class DebugManager : MonoBehaviour
   {

@@ -38,6 +38,11 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
     health.Died.AddListener(() => Destroy(gameObject));
   }
 
+  private void OnDestroy()
+  {
+    eventManager.Unregister<PlayerMoveEvent>(OnPlayerMove);
+  }
+
   private void Start()
   {
     levelManager = FindObjectOfType<LevelManager>();

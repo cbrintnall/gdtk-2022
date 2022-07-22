@@ -48,7 +48,6 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
     eventManager.Register<CombatEndEvent>(ev => canMove.Decr());
     eventManager.Register<DialogueOpenEvent>(ev => canMove.Incr());
     eventManager.Register<DialogueCloseEvent>(ev => canMove.Decr());
-    eventManager.Register<DiceGainedEvent>(OnDiceGained);
 
     if (!flagManager.HasHappenedAtLeastOnce(Flag.INTRO_FINISHED))
     {
@@ -72,20 +71,6 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
     });
 
     flagManager.Incr(Flag.PLAYER_TILES_MOVED);
-  }
-
-  private void OnDiceGained(DiceGainedEvent ev)
-  {
-    // Create the new dice in the world under the overlay camera
-    GameObject newDie = Instantiate(ev.DiceGained.Prefab, OverlayCamera.transform);
-
-    DiceMovement dm = newDie.GetComponent<DiceMovement>();
-
-    Debug.Assert(dm != null);
-
-    dm.Main = FirstPersonCamera;
-    dm.Overlay = OverlayCamera;
-    dm.ResetPosition();
   }
 
   private void Update()

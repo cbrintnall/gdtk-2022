@@ -16,6 +16,9 @@ public class DiceMovement : MonoBehaviour
   public AudioClip Pickup;
   public AudioClip Drop;
   public AudioClip RollSound;
+  public AudioClip DamageSound;
+  public AudioClip GainedTargetSound;
+  public AudioClip LostTargetSound;
 
   [Header("Positioning")]
   public LayerMask DiceMouseCastLayer;
@@ -150,6 +153,7 @@ public class DiceMovement : MonoBehaviour
             dbg.Track("Targeted enemy", enemy.name);
             enemyTarget = enemy;
             enemyTarget.SetIsTargeted(true);
+            Player.PlayOneShot(GainedTargetSound);
           }
         }
       }
@@ -158,10 +162,12 @@ public class DiceMovement : MonoBehaviour
     if (lastEnemyTargeted != null && enemyTarget != null && enemyTarget != lastEnemyTargeted)
     {
       lastEnemyTargeted.SetIsTargeted(false);
+      Player.PlayOneShot(LostTargetSound);
     }
     else if(lastEnemyTargeted != null && enemyTarget == null)
     {
       lastEnemyTargeted.SetIsTargeted(false);
+      Player.PlayOneShot(LostTargetSound);
     }
 
     lastEnemyTargeted = enemyTarget;
@@ -199,6 +205,7 @@ public class DiceMovement : MonoBehaviour
       attachedToPlayer = true;
       enemy.Health.Damage(attackState.damage);
       levelManager.CurrentCombat.EndCurrentTurn();
+      Player.PlayOneShot(DamageSound);
     });
   }
 

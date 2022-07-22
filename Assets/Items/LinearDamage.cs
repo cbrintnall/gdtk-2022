@@ -5,13 +5,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "new LinearDamage", menuName = "Items/LinearDamage")]
 public class LinearDamage : BaseItem
 {
-    public override string getName() { return "_linear_damage"; }
+  public override int getPriority() { return 3000; }
 
-    public override int getPriority() { return 3000; }
+  public override bool HandleAssignToDice(DiceController dc) => true;
 
-    public override void updateAttackState(AttackState state)
-    {
-        state.damage = state.rollResult;
-    }
+  public override void updateAttackState(AttackState state)
+  {
+      state.damage = state.rollResult;
+  }
 }
 
