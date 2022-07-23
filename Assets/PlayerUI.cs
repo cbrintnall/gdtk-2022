@@ -1,6 +1,9 @@
+using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +14,17 @@ public class TextUIPayload
   public string TopText;
   public string BottomText;
   public AudioClip OpenSound;
-  public Pickupable[] ItemOptions;
+}
+
+public class TextUIChoicesPayload<T> : TextUIPayload
+{
+  public OptionsPayload<T>[] Options;
+}
+
+public class OptionsPayload<T>
+{
+  public T Option;
+  public string Text;
 }
 
 public class DialogueCloseEvent : BaseEvent 
@@ -26,8 +39,6 @@ public class DialogueOpenEvent : BaseEvent
 
 public class PlayerUI : MonoBehaviour
 {
-  const string NEED_ITEM_NAME = "NEED_ITEM_NAME";
-
   public GameObject TextPopupBackground;
 
   [Header("Dice text")]
@@ -56,6 +67,76 @@ public class PlayerUI : MonoBehaviour
     eventManager.Register<CombatEndEvent>(OnCombatEnd);
   }
 
+  [Button("Text Options")]
+  private void TestOptions()
+  {
+    Action<string> onOptionChosen = (opt) =>
+    {
+      ShowText(
+        new TextUIPayload()
+        {
+          TopText = "Thanks for choosing an option!",
+          BottomText = $"You chose: {opt}"
+        }
+      );
+    };
+
+    string[] options = new string[]
+    {
+      "Option #1",
+      "Option #2",
+      "Option #3"
+    };
+
+    ShowOptions(
+      new TextUIChoicesPayload<string>()
+      {
+        TopText = "Hello",
+        BottomText = "Testing!",
+        Options = options.Select(
+          opt => new OptionsPayload<string>()
+          {
+            Text = opt,
+            Option = opt
+          }
+        ).ToArray()
+      },
+      onOptionChosen
+    );
+  }
+
+  public void ShowOptions<T>(TextUIChoicesPayload<T> payload, Action<T> onOptionChosen)
+  {
+    ShowText(payload);
+
+    OptionsRoot.SetActive(true);
+
+    StartCoroutine(OptionsCoroutine(payload.Options, onOptionChosen));
+  }
+
+  IEnumerator OptionsCoroutine<T>(OptionsPayload<T>[] options, Action<T> onOptionChosen)
+  {
+    bool optionChosen = false;
+
+    foreach (var item in options)
+    {
+      GameObject option = Instantiate(OptionButton, OptionsRoot.transform);
+
+      Button button = option.GetComponent<Button>();
+      TextMeshProUGUI optionTextLabel = option.GetComponentInChildren<TextMeshProUGUI>();
+
+      button.onClick.AddListener(() =>
+      {
+        onOptionChosen(item.Option);
+        optionChosen = true;
+      });
+
+      optionTextLabel.text = item.Text;
+    }
+
+    yield return new WaitUntil(() => optionChosen);
+  }
+
   public void ShowText(TextUIPayload payload) 
   {
     // Check if we're interrupting an existing dialogue, and if so we need to send off
@@ -72,34 +153,9 @@ public class PlayerUI : MonoBehaviour
 
     TextPopupBackground.gameObject.SetActive(true);
     Root.gameObject.SetActive(true);
+    OptionsRoot.gameObject.SetActive(false);
     ItemGainedText.text = payload.TopText;
     ItemGainedDescription.text = payload.BottomText;
-
-    if (payload.ItemOptions == null || payload.ItemOptions.Length == 0)
-    {
-      OptionsRoot.SetActive(false);
-    }
-    else
-    {
-      OptionsRoot.SetActive(true);
-
-      foreach (var pickup in payload.ItemOptions)
-      {
-        GameObject option = Instantiate(OptionButton, OptionsRoot.transform);
-
-        Button button = option.GetComponent<Button>();
-        TextMeshProUGUI optionText = option.GetComponentInChildren<TextMeshProUGUI>();
-
-        button.onClick.AddListener(() =>
-        {
-          // Somewhere downstream from this call it'll open another dialogue container,
-          // so we don't want to call closeui here, otherwise we'll probably close that ui.
-          pickup.GiveToPlayer(FindObjectOfType<PlayerController>());
-        });
-
-        optionText.text = string.IsNullOrEmpty(pickup.Name) ? NEED_ITEM_NAME : pickup.Name;
-      }
-    }
 
     eventManager.Publish(
       new DialogueOpenEvent()

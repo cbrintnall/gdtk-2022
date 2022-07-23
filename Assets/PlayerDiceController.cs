@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class TargetState
 {
     public List<Vector2Int> relativeTargets = new List<Vector2Int>();

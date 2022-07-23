@@ -50,14 +50,7 @@ public class ItemProvider : MonoBehaviour
 
       if (Pickups.Length > 1)
       {
-        currentPayload = new TextUIPayload()
-        {
-          TopText = "The chest contains multiple treasures..",
-          BottomText = "But attempting to take multiple burns your hands, you must only choose one.",
-          ItemOptions = Pickups
-        };
-
-        playerui.ShowText(currentPayload);
+        playerui.ShowOptions(GetPickupOptions(), OnPickupChosen);
       }
       else if (Pickups.Length == 1)
       {
@@ -68,6 +61,21 @@ public class ItemProvider : MonoBehaviour
       }
     }
   }
+
+  void OnPickupChosen(Pickupable pickup) => pickup.GiveToPlayer(FindObjectOfType<PlayerController>());
+
+  TextUIChoicesPayload<Pickupable> GetPickupOptions() => new TextUIChoicesPayload<Pickupable>()
+  {
+    TopText = "The chest contains multiple treasures..",
+    BottomText = "But attempting to take multiple burns your hands, you must only choose one.",
+    Options = Pickups.Select(
+      pickup => new OptionsPayload<Pickupable>()
+      {
+        Text = pickup.Name,
+        Option = pickup
+      }
+    ).ToArray()
+  };
 
   void FinalizePickup()
   {

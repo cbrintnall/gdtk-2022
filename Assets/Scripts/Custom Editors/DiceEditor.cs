@@ -6,12 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 
 [ExecuteInEditMode]
 public class DiceEditor : OdinEditorWindow
 {
-  public Material DicePreviewMaterial;
+  public Texture DiceTexture;
 
+  const string TEXTURE_PARAMETER = "_OriginalTexture";
+
+  GameObject lastSelectedgo;
+  ProBuilderMesh probuildermesh;
   PreviewRenderUtility previewRenderer;
   float zoom = 0f;
   float Upscale = 1f;
@@ -21,9 +27,12 @@ public class DiceEditor : OdinEditorWindow
   float mouseSpeedScaling;
   float xrot;
   float yrot;
-  float normalThreshold;
-  int lastSelected = 0;
-  List<int> selectedVertices = new();
+  bool lockRotation;
+  int selectedFace = 0;
+  Material previewMaterial;
+  Face selectedMeshFace;
+  int currentValue;
+  bool lockObject;
 
   [MenuItem("Dice/Editor")]
   private static void OpenWindow()
@@ -59,6 +68,8 @@ public class DiceEditor : OdinEditorWindow
     xrot = 0f;
     yrot = 0f;
 
+    previewMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/DicePreview.mat");
+
     Debug.Log("Initialized dice editor");
   }
 
@@ -82,16 +93,14 @@ public class DiceEditor : OdinEditorWindow
     if (previewRenderer == null)
       Initialize();
 
-    var target = Selection.activeGameObject;
-
-    if (target == null)
+    if (Selection.activeGameObject == null)
     {
       DrawError("No game object selected.");
       return;
     }
 
-    var meshFilter = target.GetComponent<MeshFilter>();
-    var meshRenderer = target.GetComponent<MeshRenderer>();
+    var meshFilter = Selection.activeGameObject.GetComponent<MeshFilter>();
+    var meshRenderer = Selection.activeGameObject.GetComponent<MeshRenderer>();
 
     if (meshRenderer == null && meshFilter == null)
     {
@@ -99,9 +108,28 @@ public class DiceEditor : OdinEditorWindow
       return;
     }
 
+    if (!lockObject)
+    {
+      if (Selection.activeGameObject != lastSelectedgo)
+      {
+        probuildermesh = GeneratePBMesh();
+        selectedFace = 0;
+        previewMaterial.SetTexture(TEXTURE_PARAMETER, DiceTexture);
+
+        Debug.Log("Repopulated probuilder mesh in dice editor");
+      }
+
+      lastSelectedgo = Selection.activeGameObject;
+    }
+
+    if (probuildermesh == null)
+      DrawError("Couldn't create probuildermesh, try reselecting game object");
+
+    previewRenderer.BeginPreview(r, GUIStyle.none);
+
     var ev = Event.current;
 
-    if (ev.type == EventType.MouseDrag && ev.button == 0)
+    if (ev.type == EventType.MouseDrag && ev.button == 0 && !lockRotation)
     {
       Vector2 mouseDir = (ev.mousePosition - lastMousePosition).normalized;
       xrot += mouseDir.x*mouseSpeedScaling;
@@ -109,12 +137,10 @@ public class DiceEditor : OdinEditorWindow
       lastMousePosition = Event.current.mousePosition;
     }
 
-    previewRenderer.BeginPreview(r, GUIStyle.none);
-
     previewRenderer.DrawMesh(
       meshFilter.sharedMesh,
-      Matrix4x4.TRS(target.transform.position, Quaternion.Euler(yrot, -xrot,0f), target.transform.localScale * Upscale),
-      DicePreviewMaterial ?? meshRenderer.sharedMaterial,
+      Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(yrot, -xrot, 0f), probuildermesh.transform.localScale * Upscale),
+      previewMaterial,
       0
     );
 
@@ -122,6 +148,12 @@ public class DiceEditor : OdinEditorWindow
     var txt = previewRenderer.EndPreview();
     GUI.DrawTexture(r, txt);
 
+    GUILayout.BeginHorizontal();
+    LogStat("Quad Count", probuildermesh.faces.Where(face => face.IsQuad()).Count());
+    LogStat("Is Quad", selectedMeshFace.IsQuad());
+    GUILayout.Label("Lock Object");
+    lockObject = EditorGUILayout.Toggle(lockObject);
+    GUILayout.EndHorizontal();
     GUILayout.BeginHorizontal();
     GUILayout.Label("Zoom");
     zoom = EditorGUILayout.Slider(zoom, 1f, 100f);
@@ -131,56 +163,92 @@ public class DiceEditor : OdinEditorWindow
     Upscale = EditorGUILayout.Slider(Upscale, 1f, 100f);
     GUILayout.EndHorizontal();
     GUILayout.BeginHorizontal();
-    GUILayout.Label("Near Clip Plane");
-    NearClipPlane = EditorGUILayout.Slider(NearClipPlane, 0f, 100f);
-    GUILayout.EndHorizontal();
-    GUILayout.BeginHorizontal();
     GUILayout.Label("Rotation Scaling");
-    mouseSpeedScaling = EditorGUILayout.Slider(mouseSpeedScaling, 0f, 100f);
+    mouseSpeedScaling = EditorGUILayout.Slider(mouseSpeedScaling, .25f, 5f);
+    GUILayout.Label("Lock Rotation");
+    lockRotation = EditorGUILayout.Toggle(lockRotation);
     GUILayout.EndHorizontal();
     GUILayout.BeginHorizontal();
-    GUILayout.Label("Normal threshold");
-    normalThreshold = EditorGUILayout.Slider(normalThreshold, -1, 1f);
-    GUILayout.EndHorizontal();
-    GUILayout.BeginHorizontal();
-    if (GUILayout.Button("Next Vertex"))
-    {
-      SelectNextVertex(meshFilter);
-    }
-    if (selectedVertices.Count == 1 && GUILayout.Button("Select Face"))
-    {
-      SelectFace(meshFilter);
-    }
-    else if (selectedVertices.Count > 1 && GUILayout.Button("Clear Face"))
-    {
-      selectedVertices.Clear();
-    }
+    GUILayout.Label("Selected Face");
+    selectedFace = Mathf.RoundToInt(EditorGUILayout.Slider(selectedFace, 0, probuildermesh.faceCount-1));
+    selectedMeshFace = probuildermesh.faces[selectedFace];
+
+    meshFilter.sharedMesh.colors = new Color[meshFilter.sharedMesh.vertexCount]
+      .Select((clr, idx) => selectedMeshFace.distinctIndexes.Contains(idx) ? Color.blue : Color.white)
+      .ToArray();
     GUILayout.EndHorizontal();
     previewRenderer.camera.transform.position = previewRenderer.camera.transform.position.normalized * zoom;
+
+    CheckAndAssignValue(Selection.activeGameObject.GetComponent<DiceController>());
   }
 
-  void SelectNextVertex(MeshFilter meshFilter)
+  void CheckAndAssignValue(DiceController dc)
   {
-    if (selectedVertices.Count > 0)
+    GUILayout.BeginHorizontal();
+    GUILayout.Label("Value:");
+    MeshFilter mesh = Selection.activeGameObject.GetComponent<MeshFilter>();
+    currentValue = Mathf.RoundToInt(EditorGUILayout.Slider(currentValue, 1, dc.DiceData.NumberOfSides));
+    if (GUILayout.Button("Assign"))
     {
-      selectedVertices[0] = selectedVertices[0] + 1 % meshFilter.sharedMesh.vertexCount;
-    }else
+      List<Vector3> relevantVertices = new();
+      var verts = probuildermesh.VerticesInWorldSpace();
+
+      for (int i = 0; i < verts.Length; i++)
+      {
+        if (selectedMeshFace.indexes.Contains(i))
+        {
+          relevantVertices.Add(verts[i]);
+        }
+      }
+
+      Vector3 point = Math.Average(relevantVertices);
+
+      //if (dc.DiceData.Faces == null)
+      //  dc.DiceData.Faces = new Vector3[dc.DiceData.NumberOfSides];
+
+      ////Vector3 newFaceData = dc.DiceData.Faces.CopyTo
+
+      //dc.DiceData.Faces = new Vector3[dc.DiceData.NumberOfSides];
+      //dc.DiceData.Faces[currentValue - 1] = point;
+    }
+    GUILayout.EndHorizontal();
+  }
+
+  void LogStat(string name, object stat)
+  {
+    GUILayout.BeginVertical();
+    GUILayout.Label(name);
+    GUILayout.Label(stat.ToString());
+    GUILayout.EndVertical();
+  }
+
+  ProBuilderMesh GeneratePBMesh()
+  {
+    if (probuildermesh != null)
     {
-      selectedVertices = new List<int>() { 0 };
+      DestroyImmediate(probuildermesh.gameObject);
     }
 
-    Debug.Log($"Selected vertex = {selectedVertices[0]}");
-    meshFilter.sharedMesh.colors = new Color[meshFilter.sharedMesh.vertexCount].Select((clr, idx) => selectedVertices.Contains(idx) ? Color.green : Color.white).ToArray();
-  }
+    GameObject copy = Instantiate(Selection.activeGameObject);
 
-  void SelectFace(MeshFilter filter)
-  {
-    //Vector3 currentNormal = filter.sharedMesh.normals[selectedVertex];
+    // this check is an assumption we're debugging, looking 
+    // at an already created mesh
+    if(copy.GetComponent<ProBuilderMesh>() != null)
+    {
+      return probuildermesh;
+    }
 
-    //for(int i = 0; i < filter.sharedMesh.vertexCount; i++)
-    //{
-    //  float dot = Vector3.Dot(currentNormal, filter.sharedMesh.normals[i]);
-    //}
+    ProBuilderMesh pbm = copy.AddComponent<ProBuilderMesh>();
+
+    Debug.Log($"New probuildermesh created for dice editor: {pbm}");
+
+    MeshFilter mf = Selection.activeGameObject.GetComponent<MeshFilter>();
+    MeshRenderer mr = Selection.activeGameObject.GetComponent<MeshRenderer>();
+
+    MeshImporter importer = new MeshImporter(mf.sharedMesh, new Material[] { mr.sharedMaterial }, pbm);
+    importer.Import();
+
+    return pbm;
   }
 
   void DrawError(string txt)

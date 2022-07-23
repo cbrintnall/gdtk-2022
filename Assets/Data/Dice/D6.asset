@@ -15,7 +15,16 @@ MonoBehaviour:
   Name: D6
   Description: The first of the four totems, a basic die.
   PickupSound: {fileID: 8300000, guid: fe77e4cac52fe6340b243e70edcc9aaa, type: 3}
-  DiceTexture: {fileID: 0}
   Prefab: {fileID: 5201199107727381867, guid: 9cbb110ab90855349b8075521ef301a5, type: 3}
   DefaultItems:
   - {fileID: 11400000, guid: 8823fe988c6ec3646b42d9178b777afa, type: 2}
+  NumberOfSides: 6
+  Faces:
+  - {x: 0, y: 0, z: 0}
+  - {x: -83.42289, y: 0.15008266, z: 52.972626}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  Directions: []
+  Values: 

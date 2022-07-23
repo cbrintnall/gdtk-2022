@@ -208,10 +208,4 @@ public class DiceMovement : MonoBehaviour
       Player.PlayOneShot(DamageSound);
     });
   }
-
-  private void OnDrawGizmosSelected()
-  {
-    Gizmos.color = Color.blue;
-    Gizmos.DrawSphere(lastCastPosition, .25f);
-  }
 }

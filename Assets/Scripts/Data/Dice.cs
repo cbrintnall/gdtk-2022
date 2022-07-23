@@ -1,13 +1,19 @@
 ﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Dice", menuName = "Dice/Dice")]
 public class Dice : Pickupable
 {
-  public Texture DiceTexture;
+  [Tooltip("The actual dice, should have a DiceController and DiceMovement component")]
   public GameObject Prefab;
+  [Tooltip("The items this die begins with")]
   public BaseItem[] DefaultItems;
+  [Tooltip("How many dice this side has, influences how large the generated data arrays can be")]
+  public int NumberOfSides;
 
   public override bool GiveToPlayer(PlayerController player)
   {
