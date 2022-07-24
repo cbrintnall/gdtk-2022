@@ -10,7 +10,9 @@ public class Combat : MonoBehaviour
 {
   const int MaxParticipants = 3;
   public int ParticipantCount => turnOrder.Count;
+  public List<ICombatParticipant> Participants => turnOrder.ToList();
   public ICombatParticipant CurrentTurnParticipant => turnOrder.Peek();
+  public PlayerController Player;
 
   Queue<ICombatParticipant> turnOrder = new();
 
@@ -39,9 +41,19 @@ public class Combat : MonoBehaviour
 
   void OnDeath(DeathEvent ev)
   {
-    if (IsActiveParticipant(ev.target.GetComponent<ICombatParticipant>()))
+    // this currently only makes sense if combat is 1v1
+    ICombatParticipant died = ev.target.GetComponent<ICombatParticipant>();
+
+    if (IsActiveParticipant(died))
     {
       EndCombat();
+
+      foreach(var participant in Participants)
+      {
+        if (participant == died) continue;
+
+        participant.OnEndCombat();
+      }
     }
   }
 
@@ -52,6 +64,15 @@ public class Combat : MonoBehaviour
       Debug.LogWarning($"Rejecting combat participant {participant.Owner.name}, too many already involved");
       return false;
     }
+
+    if (participant.Owner.TryGetComponent(out PlayerController playerController))
+    {
+      Debug.Log("Player has joined the fight");
+
+      Player = playerController;
+    }
+
+    participant.OnStartCombat();
 
     //if (!participant.Owner.CompareTag("Player"))
     //{

@@ -131,4 +131,10 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
   {
     
   }
+
+  public void OnStartCombat()
+  { }
+
+  public void OnEndCombat()
+  { }
 }

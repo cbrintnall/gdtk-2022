@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using DG.Tweening;
 
 public class StartCombatEvent : BaseEvent
 {
@@ -10,32 +11,84 @@ public class StartCombatEvent : BaseEvent
   public ICombatParticipant[] ExistingParticipants;
 }
 
+public enum CombatIntention
+{
+  Heal,
+  Damage,
+  Block
+}
+
+public class EnemyIntention
+{
+  public CombatIntention Intent;
+  public int Amount;
+}
+
+class IntentionData
+{
+
+}
+
 [RequireComponent(typeof(GridMovement))]
 [RequireComponent(typeof(HpPool))]
 public class EnemyController : MonoBehaviour, ICombatParticipant
 {
+
   public GameObject Owner => gameObject;
   public HpPool Health => health;
 
+  [Header("IntentionPath")]
+  public SpriteRenderer IntentionSprite;
+  public TMPro.TextMeshProUGUI IntentionText;
   [Header("Combat")]
   public GameObject TargetIndicator;
+  [Header("Intention Textures")]
+  public Sprite Attack;
+  public Sprite Defend;
+  public Sprite Heal;
+  [Header("Combat Sounds")]
+  public AudioClip HealSound;
+  public AudioClip AttackSound;
+  public AudioClip BlockedSound;
+
+  private Queue<EnemyIntention> _intentions = new();
 
   HpPool health;
   GridMovement GridMover;
   DebugManager dbg;
   LevelManager levelManager;
   EventManager eventManager;
+  new AudioManager audio;
 
   private AudioSource audioplayer;
 
   void Awake()
   {
+    IntentionSprite.enabled = false;
+    IntentionText.enabled = false;
+
     health = GetComponent<HpPool>();
     TargetIndicator.SetActive(false);
     GridMover = GetComponent<GridMovement>();
     audioplayer = GetComponent<AudioSource>();
 
     health.Died.AddListener(() => Destroy(gameObject));
+
+    _intentions.Enqueue(new EnemyIntention()
+    {
+      Intent = CombatIntention.Damage,
+      Amount = 3
+    });
+    _intentions.Enqueue(new EnemyIntention()
+    {
+      Intent = CombatIntention.Block,
+      Amount = 2
+    });
+    _intentions.Enqueue(new EnemyIntention()
+    {
+      Intent = CombatIntention.Heal,
+      Amount = 4
+    });
   }
 
   private void OnDestroy()
@@ -49,6 +102,7 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
     eventManager = FindObjectOfType<EventManager>();
     eventManager.Register<PlayerMoveEvent>(OnPlayerMove);
     dbg = FindObjectOfType<DebugManager>();
+    audio = FindObjectOfType<AudioManager>();
   }
 
   public void OnPlayerMove(PlayerMoveEvent e)
@@ -74,7 +128,6 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
       if (targetTile == playerTile)
       {
-        Debug.Log("Entering combat");
         var participants = new ICombatParticipant[] { this, levelManager.Player };
 
         eventManager.Publish(new StartCombatEvent { EnemyPosition = GridMover.CurrentTile, ExistingParticipants = participants });
@@ -119,14 +172,79 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
   public void StartTurn()
   {
-    StartCoroutine(FakeAttack(1));
+    var seq = DOTween.Sequence();
+
+    seq.Insert(
+      1,
+      IntentionSprite.DOFade(0f, .5f)
+    );
+
+    seq.Insert(
+      1,
+      IntentionText.DOFade(0f, .5f)
+    );
+
+    seq.AppendCallback(DoCurrentIntention);
+
+    seq.Insert(
+      3,
+      IntentionSprite.DOFade(1f, .2f)
+    );
+
+    seq.Insert(
+      3,
+      IntentionText.DOFade(1f, .2f)
+    );
+
+    seq.AppendCallback(() => levelManager.CurrentCombat.EndCurrentTurn());
   }
 
-  // TODO: this is just behavior stubbing, will replace with real combat
-  IEnumerator FakeAttack(int dmg)
+  void DoCurrentIntention()
   {
-    yield return new WaitForSeconds(2.5f);
-    FindObjectOfType<PlayerController>().Health.Damage(dmg);
-    levelManager.CurrentCombat.EndCurrentTurn();
+    EnemyIntention myIntent = _intentions.Dequeue();
+
+    switch (myIntent.Intent)
+    {
+      case CombatIntention.Damage:
+        levelManager.CurrentCombat.Player.Health.Damage(myIntent.Amount);
+        audio.Play(AttackSound);
+        break;
+      case CombatIntention.Heal:
+        Health.Heal(myIntent.Amount);
+        audio.Play(HealSound);
+        break;
+      case CombatIntention.Block:
+        audio.Play(BlockedSound);
+        Debug.LogWarning($"Enemy intention {nameof(CombatIntention.Block)} not yet implemented, but enemy attempted to use!");
+        break;
+    }
+
+    _intentions.Enqueue(myIntent);
+
+    EnemyIntention nextIntent = _intentions.Peek();
+
+    switch (nextIntent.Intent)
+    {
+      case CombatIntention.Damage:
+        IntentionSprite.sprite = Attack;
+        break;
+      case CombatIntention.Heal:
+        IntentionSprite.sprite = Heal;
+        break;
+      case CombatIntention.Block:
+        IntentionSprite.sprite = Defend;
+        break;
+    }
+
+    IntentionText.text = nextIntent.Amount.ToString();
   }
+
+  public void OnStartCombat()
+  {
+    IntentionSprite.enabled = true;
+    IntentionText.enabled = true;
+  }
+
+  public void OnEndCombat()
+  { }
 }

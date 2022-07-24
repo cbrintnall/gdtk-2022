@@ -193,12 +193,6 @@ public class DiceMovement : MonoBehaviour
       transform.DOLookAt(Overlay.transform.position, .1f)
     );
 
-    seq.Append(
-      transform.DOPunchScale(Vector3.one * .05f, 1f)
-    );
-
-    seq.AppendInterval(2.5f);
-
     seq.OnComplete(() =>
     {
       attacking = false;

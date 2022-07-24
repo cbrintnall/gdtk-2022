@@ -6,5 +6,8 @@ public interface ICombatParticipant
   public HpPool Health { get; }
   public string Name => Owner.name;
 
+  void OnStartCombat();
+  void OnEndCombat();
   void StartTurn();
+
 }
