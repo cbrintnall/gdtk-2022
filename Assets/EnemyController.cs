@@ -24,16 +24,10 @@ public class EnemyIntention
   public int Amount;
 }
 
-class IntentionData
-{
-
-}
-
 [RequireComponent(typeof(GridMovement))]
 [RequireComponent(typeof(HpPool))]
 public class EnemyController : MonoBehaviour, ICombatParticipant
 {
-
   public GameObject Owner => gameObject;
   public HpPool Health => health;
 
@@ -199,6 +193,27 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
     seq.AppendCallback(() => levelManager.CurrentCombat.EndCurrentTurn());
   }
 
+  void SetupNextAttack()
+  {
+
+    EnemyIntention nextIntent = _intentions.Peek();
+
+    switch (nextIntent.Intent)
+    {
+      case CombatIntention.Damage:
+        IntentionSprite.sprite = Attack;
+        break;
+      case CombatIntention.Heal:
+        IntentionSprite.sprite = Heal;
+        break;
+      case CombatIntention.Block:
+        IntentionSprite.sprite = Defend;
+        break;
+    }
+
+    IntentionText.text = nextIntent.Amount.ToString();
+  }
+
   void DoCurrentIntention()
   {
     EnemyIntention myIntent = _intentions.Dequeue();
@@ -221,26 +236,13 @@ public class EnemyController : MonoBehaviour, ICombatParticipant
 
     _intentions.Enqueue(myIntent);
 
-    EnemyIntention nextIntent = _intentions.Peek();
-
-    switch (nextIntent.Intent)
-    {
-      case CombatIntention.Damage:
-        IntentionSprite.sprite = Attack;
-        break;
-      case CombatIntention.Heal:
-        IntentionSprite.sprite = Heal;
-        break;
-      case CombatIntention.Block:
-        IntentionSprite.sprite = Defend;
-        break;
-    }
-
-    IntentionText.text = nextIntent.Amount.ToString();
+    SetupNextAttack();
   }
 
   public void OnStartCombat()
   {
+    SetupNextAttack();
+
     IntentionSprite.enabled = true;
     IntentionText.enabled = true;
   }

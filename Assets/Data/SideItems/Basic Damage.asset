@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a547c67fbe9dd0744b55ee73aaf90fdd, type: 3}
+  m_Name: Basic Damage
+  m_EditorClassIdentifier: 
+  Name: Side Channel
+  Description: A basic relic that damages a foe depending on the side that is rolled
+    on.
+  PickupSound: {fileID: 0}
+  Texture: {fileID: 1990315165, guid: 0d1866cb428659c439eed1a14df6843b, type: 3}
+  Multiplier: 1
+  AttackSound: {fileID: 8300000, guid: be8bc8f5e63843548a0392d4ef7839f5, type: 3}

@@ -11,6 +11,25 @@ namespace Arc.Lib.Utils
     public class Singleton : Attribute 
     { }
 
+    private static Dictionary<Type, object> Singletons = new();
+
+    public static T Get<T>() where T : class
+    {
+      var type = typeof(T);
+
+      if (Singletons.ContainsKey(type))
+      {
+        var singleton = Singletons[type];
+
+        if (singleton is T castedSingleton)
+        {
+          return castedSingleton;
+        }
+      }
+
+      return null;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void LoadSingletons()
     {
@@ -24,11 +43,13 @@ namespace Arc.Lib.Utils
           {
             GameObject newSingleton = new GameObject(name);
 
-            newSingleton.AddComponent(singleton);
+            object component = newSingleton.AddComponent(singleton);
 
             GameObject.DontDestroyOnLoad(newSingleton);
 
             UnityEngine.Debug.Log($"Created behaviour singleton {name}");
+
+            Singletons[singleton] = component;
           }
         }
         else

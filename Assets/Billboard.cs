@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Billboard : MonoBehaviour
 {
+  public bool Reverse;
+
   Camera mainCamera;
 
   private void Start()
@@ -19,5 +21,8 @@ public class Billboard : MonoBehaviour
       transform.rotation.eulerAngles.y,
       transform.rotation.eulerAngles.z
     );
+
+    if (Reverse)
+      transform.forward = -transform.forward;
   }
 }

@@ -7,7 +7,7 @@ using UnityEngine.ProBuilder;
 using UnityEngine.ProBuilder.MeshOperations;
 using System;
 using UnityEditor;
-using Sirenix.OdinInspector.Editor;
+using UnityEngine.UI;
 
 [Serializable]
 public class DieFaceInformation
@@ -21,7 +21,23 @@ public class DieFaceInformation
 [ExecuteInEditMode]
 public class DiceController : SerializedMonoBehaviour
 {
-  public Dice DiceData;
+  [Header("Audio")]
+  public AudioClip SwapCanceled;
+
+  public Dice DiceData 
+  {
+    get => _dice;
+    set
+    {
+      _dice = value;
+
+      for(int i = 0; i < _dice.DefaultSideItems.Length;i++)
+      {
+        FaceItems[i + 1] = _dice.DefaultSideItems[i]; 
+      }
+    }
+  }
+  [Header("Other")]
   public List<BaseItem> items;
   //[OnCollectionChanged("SyncValuesToFaces")]
   public Dictionary<Transform, int> FacesToValues = new();
@@ -29,7 +45,10 @@ public class DiceController : SerializedMonoBehaviour
   public List<DieFaceInformation> Faces = new ();
   [ReadOnly]
   public Dictionary<int, Transform> ValuesToFaces = new();
-
+  [ReadOnly]
+  public Dictionary<int, DiceSideItem> FaceItems = new();
+  public List<DiceSideItem> CurrentItems => FaceItems.Values.ToList();
+  public DiceFaceItemsController FaceItemsController => itemFaceController;
   public string diceName => DiceData.Name;
   public string diceDesc => DiceData.Description;
 
@@ -40,7 +59,10 @@ public class DiceController : SerializedMonoBehaviour
   [HideInInspector]
   public Dictionary<string, int> itemsCount;
 
-  private IEnumerable Sides => Enumerable.Range(0, DiceData.NumberOfSides);
+  private AudioManager audio;
+  private EventManager eventManager;
+  private DiceFaceItemsController itemFaceController;
+  private Dice _dice;
 
   [DisableIf("@FacesToValues.Keys.Count > 0")]
   [Button("Generate Face Data")]
@@ -162,6 +184,7 @@ public class DiceController : SerializedMonoBehaviour
 
   public void Awake()
   {
+    itemFaceController = GetComponent<DiceFaceItemsController>();
     sortedItems = new List<BaseItem>();
     itemsDic = new Dictionary<string, BaseItem>();
     itemsCount = new Dictionary<string, int>();
@@ -176,6 +199,30 @@ public class DiceController : SerializedMonoBehaviour
   {
     // TODO add back in
     //Debug.Assert(FacesToValues.Keys.Count == DiceData.NumberOfSides, $"Mismatch with amount of faces and number of sides in {name}");
+
+    ForEachSide(
+      side =>
+      {
+        FaceItems[side] = DiceData.DefaultSideItems[side-1];
+        itemFaceController.FaceItemAdded(side, FaceItems[side]);
+      }
+    );
+
+    eventManager = FindObjectOfType<EventManager>();
+    eventManager.Register<ItemSwapEvent>(OnItemSwap);
+    audio = FindObjectOfType<AudioManager>();
+  }
+
+  void OnItemSwap(ItemSwapEvent ev)
+  {
+    if (ev.Side.HasValue)
+    {
+      int side = ev.Side.Value;
+
+      Debug.Assert(FaceItems.Keys.Contains(side), $"We attempted to slot in a side item for a side this dice doesn't have! side={ev.Side}");
+
+      FaceItems[side] = ev.Item;
+    }
   }
 
   public void AddItems(params BaseItem[] items) => items.ToList().ForEach(addItem);
@@ -199,7 +246,8 @@ public class DiceController : SerializedMonoBehaviour
     }
   }
 
-  public TargetState getTargetState() {
+  public TargetState getTargetState() 
+  {
     TargetState state = new TargetState();
     foreach(BaseItem item in sortedItems)
     {
@@ -209,7 +257,8 @@ public class DiceController : SerializedMonoBehaviour
     return state;
   }
 
-  public ProbState getProbState() {
+  public ProbState getProbState() 
+  {
     ProbState state = new ProbState();
 
     foreach(BaseItem item in sortedItems)
@@ -243,7 +292,8 @@ public class DiceController : SerializedMonoBehaviour
     return i;
   }
 
-  public AttackState getAttackState() {
+  public AttackState getAttackState() 
+  {
     ProbState probState = getProbState();
 
     int result = weightedSample(probState.probs) + 1;
@@ -257,6 +307,16 @@ public class DiceController : SerializedMonoBehaviour
     }
 
     return attackState;
+  }
+
+  // note, the past in integer does NOT correspond to an index, but rather a side.
+  // ex: index 0 will get value 1 passed in.. subtract 1 if you need an index!
+  private void ForEachSide(Action<int> frs)
+  {
+    for(int i = 0; i < DiceData.NumberOfSides; i++)
+    {
+      frs(i+1);
+    }
   }
 
   private void OnDrawGizmos()

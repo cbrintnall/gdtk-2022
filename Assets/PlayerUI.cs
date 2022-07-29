@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 [Serializable]
 public class TextUIPayload
@@ -14,6 +15,21 @@ public class TextUIPayload
   public string TopText;
   public string BottomText;
   public AudioClip OpenSound;
+}
+
+public class ItemSwapChosenEvent : BaseEvent
+{
+  //"Chosen" determines what item is being swapped.
+  public DiceSideItem Chosen;
+  //FromDice determines if it's from the swap bar, or on the dice
+  public bool FromDice;
+  //DesiredSide is the side we want to swap for, if FromDice=true, this doesn't matter
+  public int DesiredSide;
+
+  public bool IsValidSwap(ItemSwapChosenEvent other)
+  {
+    return Chosen != other.Chosen && FromDice != other.FromDice && DesiredSide != other.DesiredSide;
+  }
 }
 
 public class TextUIChoicesPayload<T> : TextUIPayload
@@ -53,12 +69,15 @@ public class PlayerUI : MonoBehaviour
   [Header("Combat")]
   public GameObject ParticipantsRoot;
   public CombatPanel PanelPrefab;
+  public RectTransform CombatItemOptionsParent;
+  public RectTransform CombatItemOptionButton;
 
   [Header("Audio")]
   public AudioSource player;
 
   EventManager eventManager;
   TextUIPayload lastPayload;
+  Tweener existingSideItemsTween;
 
   private void Start()
   {
@@ -170,6 +189,43 @@ public class PlayerUI : MonoBehaviour
     {
       player.PlayOneShot(payload.OpenSound);
     }
+  }
+
+  public void SetDiceItemOptions(List<DiceSideItem> options)
+  {
+    if (!CombatItemOptionsParent.gameObject.activeInHierarchy) return;
+
+    foreach(RectTransform childTransform in CombatItemOptionsParent.transform)
+    {
+      Destroy(childTransform.gameObject);
+    }
+
+    foreach(var option in options)
+    {
+      var nextButton = Instantiate(CombatItemOptionButton, CombatItemOptionsParent.transform);
+
+      nextButton.anchoredPosition = Vector3.zero;
+      nextButton.GetComponent<ItemButton>().Item = option;
+    }
+  }
+
+  public void HideItemOptions() => MoveItemOptions(1.2f, true);
+  public void ShowItemOptions() => MoveItemOptions(0f, false);
+  public void ToggleItemOptions() 
+  {
+    if (CombatItemOptionsParent.gameObject.activeInHierarchy)
+    {
+      HideItemOptions();
+    }
+    else
+    {
+      ShowItemOptions();
+    }
+  }
+
+  void MoveItemOptions(float anchorY, bool after)
+  {
+    CombatItemOptionsParent.gameObject.SetActive(!after);
   }
 
   void OnCombatEnd(CombatEndEvent ev)

@@ -15,8 +15,6 @@ public class DiceMovement : MonoBehaviour
   public AudioSource Player;
   public AudioClip Pickup;
   public AudioClip Drop;
-  public AudioClip RollSound;
-  public AudioClip DamageSound;
   public AudioClip GainedTargetSound;
   public AudioClip LostTargetSound;
 
@@ -38,10 +36,13 @@ public class DiceMovement : MonoBehaviour
   EnemyController lastEnemyTargeted;
   DiceController controller;
   PlayerController player;
+  PlayerDiceController playerDiceController;
+  DiceFaceItemsController diceFaceController;
   Vector2 lastMousePosition;
   
   private void Awake()
   {
+    diceFaceController = GetComponent<DiceFaceItemsController>();
     controller = GetComponent<DiceController>();
     rb = GetComponent<Rigidbody>();
     rotation = GetComponent<ConstantRotation>();
@@ -55,6 +56,7 @@ public class DiceMovement : MonoBehaviour
   private void Start()
   {
     levelManager = FindObjectOfType<LevelManager>();
+    playerDiceController = FindObjectOfType<PlayerDiceController>();
   }
 
   private void Update()
@@ -73,7 +75,7 @@ public class DiceMovement : MonoBehaviour
 
       string diceHitName = "";
 
-      if (Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, DiceMouseCastLayer))
+      if (!diceFaceController.ItemHovered && Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, DiceMouseCastLayer))
       {
         diceHitName = hit.collider.name;
         if (Input.GetMouseButtonDown(0))
@@ -102,7 +104,15 @@ public class DiceMovement : MonoBehaviour
     {
       if (levelManager.CurrentCombat != null && levelManager.CurrentCombat.IsTurn(player) && enemyTarget != null)
       {
-        OnEnemySelected(enemyTarget);
+        attacking = true;
+        playerDiceController.DoDiceRollWithTarget(
+          enemyTarget, 
+          () =>
+          {
+            attacking = false;
+            attachedToPlayer = true;
+          }
+        );
       }
       else
       {
@@ -172,34 +182,5 @@ public class DiceMovement : MonoBehaviour
 
     lastEnemyTargeted = enemyTarget;
     lastMousePosition = Input.mousePosition;
-  }
-
-  private void OnEnemySelected(EnemyController enemy)
-  {
-    TargetState targetState = controller.getTargetState();
-    AttackState attackState = controller.getAttackState();
-
-    Player?.PlayOneShot(RollSound);
-
-    var seq = DOTween.Sequence();
-
-    attacking = true;
-
-    seq.Append(
-      transform.DORotate(transform.up * 360f * 5f, 1f, RotateMode.LocalAxisAdd)
-    );
-
-    seq.Append(
-      transform.DOLookAt(Overlay.transform.position, .1f)
-    );
-
-    seq.OnComplete(() =>
-    {
-      attacking = false;
-      attachedToPlayer = true;
-      enemy.Health.Damage(attackState.damage);
-      levelManager.CurrentCombat.EndCurrentTurn();
-      Player.PlayOneShot(DamageSound);
-    });
   }
 }

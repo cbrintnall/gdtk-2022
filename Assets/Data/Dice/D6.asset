@@ -18,13 +18,11 @@ MonoBehaviour:
   Prefab: {fileID: 5201199107727381867, guid: 9cbb110ab90855349b8075521ef301a5, type: 3}
   DefaultItems:
   - {fileID: 11400000, guid: 8823fe988c6ec3646b42d9178b777afa, type: 2}
+  DefaultSideItems:
+  - {fileID: 11400000, guid: 0e1c3773a33aa0341b5b5ae2b7c606d0, type: 2}
+  - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
+  - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
+  - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
+  - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
+  - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
   NumberOfSides: 6
-  Faces:
-  - {x: 0, y: 0, z: 0}
-  - {x: -83.42289, y: 0.15008266, z: 52.972626}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  Directions: []
-  Values: 

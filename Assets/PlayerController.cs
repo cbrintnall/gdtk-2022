@@ -2,6 +2,8 @@ using Arc.Lib.Debug;
 using Cinemachine;
 using UnityEngine;
 
+public class PlayerCombatTurnBegin : BaseEvent { }
+
 public class PlayerMoveEvent : BaseEvent
 {
   public Vector2Int OldTile;
@@ -129,7 +131,7 @@ public class PlayerController : MonoBehaviour, ICombatParticipant
 
   public void StartTurn()
   {
-    
+    eventManager.Publish(new PlayerCombatTurnBegin());
   }
 
   public void OnStartCombat()

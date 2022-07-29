@@ -12,6 +12,8 @@ public class Dice : Pickupable
   public GameObject Prefab;
   [Tooltip("The items this die begins with")]
   public BaseItem[] DefaultItems;
+  [Tooltip("The default item each side begins with for this die")]
+  public DiceSideItem[] DefaultSideItems;
   [Tooltip("How many dice this side has, influences how large the generated data arrays can be")]
   public int NumberOfSides;
 

@@ -142,6 +142,7 @@ GameObject:
   - component: {fileID: 1639325888}
   - component: {fileID: 5716117768467428775}
   - component: {fileID: 5791738836108152025}
+  - component: {fileID: 1178211185455049709}
   m_Layer: 6
   m_Name: D6
   m_TagString: Dice
@@ -236,6 +237,7 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
+    - {fileID: 11400000, guid: 537ebf23bb023af4491d3d5e1efc5077, type: 2}
     - {fileID: 11400000, guid: 143f5d86493dfa44b866399d9f8b36eb, type: 2}
     - {fileID: 11400000, guid: 8823fe988c6ec3646b42d9178b777afa, type: 2}
     - {fileID: 11400000, guid: cdbe51766fa8dd94eba2b05690a38144, type: 2}
@@ -284,13 +286,105 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: itemsDic
+    - Name: FaceItems
       Entry: 7
-      Data: 4|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[BaseItem,
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[DiceSideItem,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 6
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: itemsDic
+      Entry: 7
+      Data: 6|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[BaseItem,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 7|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -306,7 +400,7 @@ MonoBehaviour:
       Data: AreaTarget
     - Name: $v
       Entry: 10
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -318,7 +412,7 @@ MonoBehaviour:
       Data: BaseProb
     - Name: $v
       Entry: 10
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 8
       Data: 
@@ -330,7 +424,7 @@ MonoBehaviour:
       Data: LinearDamage
     - Name: $v
       Entry: 10
-      Data: 2
+      Data: 3
     - Name: 
       Entry: 8
       Data: 
@@ -342,11 +436,11 @@ MonoBehaviour:
       Data: 
     - Name: itemsCount
       Entry: 7
-      Data: 6|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Int32,
+      Data: 8|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Int32,
         mscorlib]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 5
+      Data: 7
     - Name: 
       Entry: 12
       Data: 3
@@ -392,6 +486,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  SwapCanceled: {fileID: 8300000, guid: 9c54b024e78a6a546a8619207dfb8b19, type: 3}
   DiceData: {fileID: 11400000, guid: 31334ef8e6a5b0d4e8253c7a79abd9e5, type: 2}
   items:
   - {fileID: 11400000, guid: 143f5d86493dfa44b866399d9f8b36eb, type: 2}
@@ -539,8 +634,6 @@ MonoBehaviour:
   Player: {fileID: 5716117768467428775}
   Pickup: {fileID: 8300000, guid: 67e982578d10c7c43aa2880cd37987ef, type: 3}
   Drop: {fileID: 8300000, guid: ad1e3963db846064e8f7da74783fd9ee, type: 3}
-  RollSound: {fileID: 0}
-  DamageSound: {fileID: 8300000, guid: be8bc8f5e63843548a0392d4ef7839f5, type: 3}
   GainedTargetSound: {fileID: 0}
   LostTargetSound: {fileID: 0}
   DiceMouseCastLayer:
@@ -1573,6 +1666,23 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!114 &1178211185455049709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5201199107727381867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1884ca0ccf41abc489ed7d4ef8cc01ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Offset: 100
+  Speed: 1
+  HoverSpeed: 1
+  DiceFaceItemTexturePrefab: {fileID: 3382968901191617515, guid: 2ee12f160b9330a49a67e4502ff4e589, type: 3}
+  ItemTexturesCanvasPrefab: {fileID: 4852895305727218120, guid: a5fe002ed64fdb44c9643a95a2ddfd1b, type: 3}
 --- !u!1 &7590363328759523654
 GameObject:
   m_ObjectHideFlags: 0
