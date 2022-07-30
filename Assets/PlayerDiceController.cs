@@ -33,6 +33,12 @@ public class PlayerDiceController : MonoBehaviour
   public AudioClip RollDiceSound;
   public AudioClip DamageSound;
 
+  public bool Attacking
+  {
+    get => attacking;
+    private set => attacking = value;
+  }
+
   // TODO: allow holding multiple dice, for now theres only one
   public DiceController HeldDie;
   public Queue<DiceSideItem> CombatItemOptions;
@@ -42,6 +48,7 @@ public class PlayerDiceController : MonoBehaviour
   private List<DiceSideItem> items = new List<DiceSideItem>();
   private PlayerController playerController;
 
+  bool attacking;
   EventManager eventManager;
   LevelManager levelManager;
   AudioManager player;
@@ -83,6 +90,10 @@ public class PlayerDiceController : MonoBehaviour
 
   public void DoDiceRollWithTarget(EnemyController enemy, Action onComplete = null)
   {
+    if (attacking) return;
+
+    attacking = true;
+
     TargetState targetState = HeldDie.getTargetState();
     AttackState attackState = HeldDie.getAttackState();
 
@@ -97,6 +108,7 @@ public class PlayerDiceController : MonoBehaviour
     seq.OnComplete(() =>
     {
       DiceSideItem landedItem = HeldDie.FaceItems[attackState.rollResult];
+
       Debug.Assert(landedItem != null);
 
       DiceLandedPayload payload = new DiceLandedPayload()
@@ -106,10 +118,18 @@ public class PlayerDiceController : MonoBehaviour
         Controller = HeldDie
       };
 
-      landedItem.OnLanded(payload);
-      levelManager.CurrentCombat.EndCurrentTurn();
-      onComplete?.Invoke();
+      StartCoroutine(StartPlayerAction(landedItem, payload, onComplete));
     });
+  }
+
+  IEnumerator StartPlayerAction(DiceSideItem landedItem, DiceLandedPayload payload, Action onComplete = null)
+  {
+    yield return landedItem.OnLanded(payload);
+
+    levelManager.CurrentCombat.EndCurrentTurn();
+
+    attacking = false;
+    onComplete?.Invoke();
   }
 
   void OnItemSwap(ItemSwapEvent ev)

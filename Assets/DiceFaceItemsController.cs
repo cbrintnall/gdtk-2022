@@ -36,7 +36,18 @@ public class DiceFaceItemsController : MonoBehaviour
     }
   }
 
-  public ItemButton GetButtonForSide(int side) => itemCanvas.transform.GetChild(side - 1).GetComponent<ItemButton>();
+  public ItemButton GetButtonForSide(int side)
+  {
+    foreach(Transform child in itemCanvas.transform)
+    {
+      ItemButton btn = child.GetComponent<ItemButton>();
+
+      if (btn != null && btn.Side.HasValue && btn.Side == side)
+        return btn;
+    }
+
+    return null;
+  }
   
   public void FaceItemAdded(int side, DiceSideItem item)
   {

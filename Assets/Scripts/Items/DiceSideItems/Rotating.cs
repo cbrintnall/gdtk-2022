@@ -2,6 +2,7 @@ using Arc.Lib.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// Functionality changes after the dice lands, rotating through
@@ -20,11 +21,21 @@ public class Rotating : DiceSideItem
 
   public override Sprite ItemTexture => Rotation[currentSide].ItemTexture;
 
-  public override void OnLanded(DiceLandedPayload payload)
+  public override IEnumerator OnLanded(DiceLandedPayload payload)
   {
-    Rotation[currentSide].OnLanded(payload);
+    yield return Rotation[currentSide].OnLanded(payload);
+
+    int lastSide = currentSide;
     currentSide = (currentSide + 1) % Rotation.Length;
+
     SingletonLoader.Get<AudioManager>().PlayRandomPitch(SwitchItemSound, 1f, new Vector2(.9f, 1.1f));
-    payload.GetItemButton().Item = Rotation[currentSide];
+
+    ItemButton btn = payload.GetItemButton();
+    var tween = btn.transform.DOShakeRotation(.25f);
+    btn.Item = Rotation[currentSide];
+
+    Debug.Log($"payload_side={payload.Side},side={btn.Side},last={lastSide},current={currentSide}");
+
+    yield return new WaitUntil(() => !tween.IsActive() || tween.IsComplete());
   }
 }

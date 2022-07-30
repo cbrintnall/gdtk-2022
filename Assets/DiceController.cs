@@ -31,23 +31,19 @@ public class DiceController : SerializedMonoBehaviour
     {
       _dice = value;
 
+      FaceItems = new DiceSideItem[_dice.NumberOfSides];
+
       for(int i = 0; i < _dice.DefaultSideItems.Length;i++)
       {
-        FaceItems[i + 1] = _dice.DefaultSideItems[i]; 
+        FaceItems[i] = _dice.DefaultSideItems[i]; 
       }
     }
   }
   [Header("Other")]
   public List<BaseItem> items;
-  //[OnCollectionChanged("SyncValuesToFaces")]
-  public Dictionary<Transform, int> FacesToValues = new();
-  [OnCollectionChanged("SyncValuesToFaces")]
   public List<DieFaceInformation> Faces = new ();
   [ReadOnly]
-  public Dictionary<int, Transform> ValuesToFaces = new();
-  [ReadOnly]
-  public Dictionary<int, DiceSideItem> FaceItems = new();
-  public List<DiceSideItem> CurrentItems => FaceItems.Values.ToList();
+  public DiceSideItem[] FaceItems;
   public DiceFaceItemsController FaceItemsController => itemFaceController;
   public string diceName => DiceData.Name;
   public string diceDesc => DiceData.Description;
@@ -64,7 +60,7 @@ public class DiceController : SerializedMonoBehaviour
   private DiceFaceItemsController itemFaceController;
   private Dice _dice;
 
-  [DisableIf("@FacesToValues.Keys.Count > 0")]
+  [DisableIf("@Faces.Count > 0")]
   [Button("Generate Face Data")]
   private void GenerateFaceData()
   {
@@ -160,26 +156,6 @@ public class DiceController : SerializedMonoBehaviour
     transform.rotation = originalRotation;
   }
 
-  [DisableIf("@FacesToValues.Keys.Count == 0")]
-  [Button("Sync face data")]
-  void SyncValuesToFaces()
-  {
-    ValuesToFaces = new Dictionary<int, Transform>();
-
-    foreach(var key in FacesToValues.Keys)
-    {
-      ValuesToFaces[FacesToValues[key]] = key;
-    }
-  }
-
-  [Button("Look at face")]
-  void FaceLookAt(int face, Transform _)
-  {
-    transform.LookAt(
-      GetFaceFor(face).Transform
-    );
-  }
-
   DieFaceInformation GetFaceFor(int requestedFace) => Faces.Where(face => face.Value == requestedFace).FirstOrDefault();
 
   public void Awake()
@@ -203,8 +179,10 @@ public class DiceController : SerializedMonoBehaviour
     ForEachSide(
       side =>
       {
-        FaceItems[side] = DiceData.DefaultSideItems[side-1];
-        itemFaceController.FaceItemAdded(side, FaceItems[side]);
+        int idx = side - 1;
+
+        FaceItems[idx] = DiceData.DefaultSideItems[idx];
+        itemFaceController.FaceItemAdded(side, FaceItems[idx]);
       }
     );
 
@@ -217,11 +195,7 @@ public class DiceController : SerializedMonoBehaviour
   {
     if (ev.Side.HasValue)
     {
-      int side = ev.Side.Value;
-
-      Debug.Assert(FaceItems.Keys.Contains(side), $"We attempted to slot in a side item for a side this dice doesn't have! side={ev.Side}");
-
-      FaceItems[side] = ev.Item;
+      FaceItems[ev.Side.Value-1] = ev.Item;
     }
   }
 

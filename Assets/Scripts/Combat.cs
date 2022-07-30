@@ -6,6 +6,9 @@ using System.Linq;
 public class CombatEndEvent : BaseEvent
 { }
 
+public class EndUserTurnEvent : BaseEvent
+{ }
+
 public class Combat : MonoBehaviour
 {
   const int MaxParticipants = 3;

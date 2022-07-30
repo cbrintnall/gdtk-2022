@@ -26,5 +26,5 @@ public abstract class DiceSideItem : Pickupable
     return $"name={Name}";
   }
 
-  public abstract void OnLanded(DiceLandedPayload payload);
+  public abstract IEnumerator OnLanded(DiceLandedPayload payload);
 }

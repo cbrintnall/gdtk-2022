@@ -15,14 +15,17 @@ public class RawDamage : DiceSideItem
 
   public override Sprite ItemTexture => Texture;
 
-  public override void OnLanded(DiceLandedPayload payload)
+  public override IEnumerator OnLanded(DiceLandedPayload payload)
   {
     payload.Target.Health.Damage(payload.Side * Multiplier);
-    payload.GetItemButton().transform.DOPunchScale(
+
+    var tween = payload.GetItemButton().transform.DOPunchScale(
       Vector3.one * 1.1f,
       .25f
     );
 
     AudioManager.Instance.PlayRandomPitch(AttackSound, 1f, new Vector2(.9f, 1.1f));
+
+    yield return new WaitUntil(() => !tween.IsActive() || tween.IsComplete());
   }
 }
